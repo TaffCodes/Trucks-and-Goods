@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Management</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Truck Management</h1>
+        <section>
+            <h2>Trips</h2>
+            <!-- Forms for adding, changing, deleting trips -->
+        </section>
+        <section>
+            <h2>Drivers</h2>
+            <!-- Forms for adding, changing, deleting drivers -->
+        </section>
+        <section>
+            <h2>Trucks</h2>
+            <section>            <section>
+                <h2>Add Truck</h2>
+                <section>
+                    <h2>Add Truck</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ add_truck_form.as_p }}
+                        <input type="hidden" name="add_truck" value="1">
+                        <button type="submit">Add Truck</button>
+                    </form>
+                </section>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Detail</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Truck Detail</h1>
+        <p><strong>ID:</strong> {{ truck.id }}</p>
+        <p><strong>Model:</strong> {{ truck.model }}</p>
+        <p><strong>Number Plate:</strong> {{ truck.number_plate }}</p>
+    </main>
+</body>
+</html>

@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
 from .models import Truck, Driver, Trip
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, LoginForm
-from django.contrib.auth.decorators import permission_required, login_required
+from .forms import SignUpForm, LoginForm, AddTruckForm
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
+
 
 
 @method_decorator(permission_required('core.view_truck'), name='dispatch')
@@ -53,8 +54,32 @@ def login_view(request):
 
 @login_required
 def home(request):
-    return render(request, 'home.html')
+    trucks = Truck.objects.all()
+    return render(request, 'home.html', {'trucks': trucks})
 
 def logout_view(request):
     logout(request)
     return redirect('landing')
+
+
+def is_fleet_manager(user):
+    return user.groups.filter(name='Fleet manager').exists()
+
+# @user_passes_test(is_fleet_manager)
+@login_required
+def truck_management(request):
+    add_truck_form = AddTruckForm()
+    
+    if request.method == 'POST':
+        if 'add_truck' in request.POST:
+            add_truck_form = AddTruckForm(request.POST)
+            if add_truck_form.is_valid():
+                add_truck_form.save()
+                return redirect('truck_management')
+    
+    return render(request, 'truck_management.html', {'add_truck_form': add_truck_form})
+
+@login_required
+def truck_detail(request, truck_id):
+    truck = get_object_or_404(Truck, id=truck_id)
+    return render(request, 'truck_detail.html', {'truck': truck})
