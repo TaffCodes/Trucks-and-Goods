@@ -5,6 +5,9 @@ from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm, LoginForm
+from django.contrib.auth.decorators import permission_required
+from django.utils.decorators import method_decorator
+
 
 @method_decorator(permission_required('core.view_truck'), name='dispatch')
 class TruckViewSet(viewsets.ModelViewSet):
@@ -48,6 +51,7 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
 def home(request):
     return render(request, 'home.html')
 
