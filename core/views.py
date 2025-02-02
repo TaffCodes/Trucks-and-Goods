@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
-from .models import Truck, Driver, Trip
+from .models import Truck, Driver, Trip, Route
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, LoginForm,DriverForm, TruckForm
+from .forms import SignUpForm, LoginForm,DriverForm, TruckForm, RouteForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 
@@ -225,3 +225,48 @@ def delete_truck(request, truck_id):
 def view_truck(request, truck_id):
     truck = get_object_or_404(Truck, id=truck_id)
     return render(request, 'view_truck.html', {'truck': truck})
+
+
+@login_required
+def route_management(request):
+    routes = Route.objects.all()
+    return render(request, 'route_management.html', {'routes': routes})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def add_route(request):
+    if request.method == 'POST':
+        form = RouteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('route_management')
+    else:
+        form = RouteForm()
+    return render(request, 'add_route.html', {'form': form})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def edit_route(request, route_id):
+    route = get_object_or_404(Route, id=route_id)
+    if request.method == 'POST':
+        form = RouteForm(request.POST, instance=route)
+        if form.is_valid():
+            form.save()
+            return redirect('route_management')
+    else:
+        form = RouteForm(instance=route)
+    return render(request, 'edit_route.html', {'form': form, 'route': route})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def delete_route(request, route_id):
+    route = get_object_or_404(Route, id=route_id)
+    if request.method == 'POST':
+        route.delete()
+        return redirect('route_management')
+    return render(request, 'delete_route.html', {'route': route})
+
+@login_required
+def view_route(request, route_id):
+    route = get_object_or_404(Route, id=route_id)
+    return render(request, 'view_route.html', {'route': route})

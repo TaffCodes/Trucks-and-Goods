@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Route</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .detail-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .detail-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .label {
+            font-weight: bold;
+            width: 150px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'route_management' %}">Back to Route Management</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="detail-container">
+            <h1>Route Details</h1>
+            <div class="detail-item">
+                <span class="label">Route ID:</span>
+                <span>{{ route.id }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Start Location:</span>
+                <span>{{ route.start_location }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">End Location:</span>
+                <span>{{ route.end_location }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Distance:</span>
+                <span>{{ route.distance_km }} km</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Estimated Cost:</span>
+                <span>${{ route.estimated_fuel_cost }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Created:</span>
+                <span>{{ route.created_at }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Last Updated:</span>
+                <span>{{ route.updated_at }}</span>
+            </div>
+            <div class="actions">
+                <a href="{% url 'edit_route' route.id %}" class="btn">Edit Route</a>
+                <a href="{% url 'delete_route' route.id %}" class="btn btn-danger">Delete Route</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
-from .models import Truck, Driver, Trip
+from .models import Truck, Driver, Trip, Route
 from django.db.models import Q
 
 
@@ -126,3 +126,14 @@ class TruckForm(forms.ModelForm):
         if Truck.objects.filter(number_plate=number_plate).exists():
             raise forms.ValidationError('This number plate is already registered')
         return number_plate.upper()
+
+class RouteForm(forms.ModelForm):
+    class Meta:
+        model = Route
+        fields = ['start_location', 'end_location', 'distance_km', 'estimated_fuel_cost']
+        widgets = {
+            'start_location': forms.TextInput(attrs={'class': 'form-control'}),
+            'end_location': forms.TextInput(attrs={'class': 'form-control'}),
+            'distance_km': forms.NumberInput(attrs={'class': 'form-control'}),
+            'estimated_fuel_cost': forms.NumberInput(attrs={'class': 'form-control'})
+        }
