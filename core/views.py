@@ -57,15 +57,19 @@ def home(request):
     trucks = Truck.objects.all()
     return render(request, 'home.html', {'trucks': trucks})
 
+
+@login_required
 def logout_view(request):
-    logout(request)
-    return redirect('landing')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('landing')
+    return render(request, 'landing.html')
 
 
 def is_fleet_manager(user):
     return user.groups.filter(name='Fleet manager').exists()
 
-# @user_passes_test(is_fleet_manager)
+@user_passes_test(is_fleet_manager)
 @login_required
 def truck_management(request):
     add_truck_form = AddTruckForm()

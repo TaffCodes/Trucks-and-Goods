@@ -16,5 +16,5 @@ urlpatterns = [
     path('home/', home, name='home'),
     path('logout/', logout_view, name='logout'),
     path('truck_management/', truck_management, name='truck_management'),
-    path('truck/<int:truck_id>/', truck_detail, name='truck_detail'),
+    path('truck/<str:truck_id>/', truck_detail, name='truck_detail'),
 ]
