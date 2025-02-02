@@ -40,15 +40,42 @@
         .btn:hover {
             background-color: #0056b3;
         }
+
+        .btn-admin {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #008600;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-admin:hover {
+            background-color: #005600;
+        }
+
+        .btn-logout {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #f0bc11;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-logout:hover {
+            background-color: #d1a00d;
+        }
     </style>
 </head>
 <body>
     <header>
         <nav>
             <ul>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                <li><a href="{% url 'admin:index' %}" class="btn-admin">Admin</a></li>
                 <li><a href="{% url 'truck_management' %}" class="btn">Truck Management</a></li>
+                <li><a href="{% url 'driver_management' %}" class="btn">Driver Management</a></li>
+                <li><a href="{% url 'logout' %}" class="btn-logout"> Logout</a></li>
             </ul>
         </nav>
     </header>

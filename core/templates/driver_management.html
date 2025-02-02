@@ -1,10 +1,10 @@
-_management.html
+driver_management.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Truck Management</title>
+    <title>Driver Management</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
@@ -46,39 +46,35 @@ _management.html
         <nav>
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'driver_management' %}">Driver Management</a></li>
+                <li><a href="{% url 'truck_management' %}">Truck Management</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
     </header>
     <div class="container">
-        <h1>Truck Management</h1>
-        <a href="{% url 'add_truck' %}" class="btn">Add New Truck</a>
-
-        <p>Total trucks: {{ trucks|length }}</p>
+        <h1>Driver Management</h1>
+        <a href="{% url 'add_driver' %}" class="btn">Add New Driver</a>
         
         <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Number Plate</th>
-                    <th>Model</th>
-                    <th>Capacity</th>
-                    <th>Status</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Assigned Truck</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for truck in trucks %}
+                {% for driver in drivers %}
                 <tr>
-                    <td><a href="{% url 'truck_detail' truck.id %}">{{ truck.id }}</a></td>
-                    <td>{{ truck.number_plate }}</td>
-                    <td>{{ truck.model }}</td>
-                    <td>{{ truck.capacity }}</td>
-                    <td>{{ truck.status }}</td>
+                    <td><a href="{% url 'view_driver' driver.id %}">{{ driver.id }}</a></td>
+                    <td>{{ driver.user.get_full_name }}</td>
+                    <td>{{ driver.phone }}</td>
+                    <td>{{ driver.assigned_truck.number_plate|default:"-" }}</td>
                     <td>
-                        <a href="{% url 'edit_truck' truck.id %}" class="btn">Edit</a>
-                        <a href="{% url 'delete_truck' truck.id %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'edit_driver' driver.id %}" class="btn">Edit</a>
+                        <a href="{% url 'delete_driver' driver.id %}" class="btn btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -1,0 +1,75 @@
+driver.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Driver</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .delete-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .warning {
+            color: #dc3545;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'driver_management' %}">Back to Driver Management</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="delete-container">
+            <h1>Delete Driver</h1>
+            <div class="warning">
+                <p>Are you sure you want to delete the following driver?</p>
+                <p><strong>Name:</strong> {{ driver.user.get_full_name }}</p>
+                <p><strong>ID:</strong> {{ driver.id }}</p>
+                {% if driver.assigned_truck %}
+                    <p><strong>Assigned Truck:</strong> {{ driver.assigned_truck.number_plate }}</p>
+                {% endif %}
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                <a href="{% url 'driver_management' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

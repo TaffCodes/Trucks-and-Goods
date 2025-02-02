@@ -21,6 +21,7 @@ class Truck(models.Model):
 class Driver(models.Model):
     id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=30, default="", editable=True)
     phone = models.CharField(max_length=15)
     assigned_truck = models.OneToOneField(Truck, on_delete=models.SET_NULL, null=True, blank=True)
 

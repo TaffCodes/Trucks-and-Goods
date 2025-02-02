@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Truck</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Truck Details</h1>
+        <p><strong>ID:</strong> {{ truck.id }}</p>
+        <p><strong>Number Plate:</strong> {{ truck.number_plate }}</p>
+        <p><strong>Model:</strong> {{ truck.model }}</p>
+        <p><strong>Capacity:</strong> {{ truck.capacity }}</p>
+        <p><strong>Status:</strong> {{ truck.status }}</p>
+        <a href="{% url 'truck_management' %}" class="btn">Back</a>
+    </div>
+</body>
+</html>

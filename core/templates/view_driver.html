@@ -1,0 +1,97 @@
+_driver.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Driver</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .detail-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .detail-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .label {
+            font-weight: bold;
+            width: 150px;
+            display: inline-block;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'driver_management' %}">Back to Driver Management</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="detail-container">
+            <h1>Driver Details</h1>
+            <div class="detail-item">
+                <span class="label">Driver ID:</span>
+                <span>{{ driver.id }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Name:</span>
+                <span>{{ driver.user.get_full_name }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Username:</span>
+                <span>{{ driver.user.username }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Phone:</span>
+                <span>{{ driver.phone }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Assigned Truck:</span>
+                {% if driver.assigned_truck %}
+                    <span>{{ driver.assigned_truck.number_plate }} ({{ driver.assigned_truck.id }})</span>
+                {% else %}
+                    <span>No truck assigned</span>
+                {% endif %}
+            </div>
+            {% if driver.assigned_truck %}
+                <div class="detail-item">
+                    <span class="label">Truck Model:</span>
+                    <span>{{ driver.assigned_truck.model }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Truck Capacity:</span>
+                    <span>{{ driver.assigned_truck.capacity }}</span>
+                </div>
+            {% endif %}
+            <div class="actions">
+                <a href="{% url 'edit_driver' driver.id %}" class="btn">Edit Driver</a>
+                <a href="{% url 'delete_driver' driver.id %}" class="btn">Delete Driver</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
