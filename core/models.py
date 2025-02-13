@@ -14,6 +14,9 @@ class Truck(models.Model):
     model = models.CharField(max_length=50)
     capacity = models.IntegerField()
     status = models.CharField(max_length=20, default="available")
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.id:

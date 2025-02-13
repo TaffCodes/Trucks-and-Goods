@@ -270,3 +270,53 @@ def delete_route(request, route_id):
 def view_route(request, route_id):
     route = get_object_or_404(Route, id=route_id)
     return render(request, 'view_route.html', {'route': route})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Truck
+
+@csrf_exempt
+def update_truck_location(request, truck_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            truck = get_object_or_404(Truck, id=truck_id)
+            truck.latitude = data['latitude']
+            truck.longitude = data['longitude']
+            truck.save()
+            return JsonResponse({"status": "success"})
+        except Truck.DoesNotExist:
+            return JsonResponse({"error": "Truck not found"}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    elif request.method == "GET":
+        # Add GET handler for testing
+        return JsonResponse({"message": "Use POST method to update location"}, status=405)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+def track_location(request, truck_id):
+    truck = get_object_or_404(Truck, id=truck_id)
+    initial_location = {
+        'latitude': truck.latitude or -1.2921,  # Default to Nairobi if no location
+        'longitude': truck.longitude or 36.8219
+    }
+    return render(request, 'track_location.html', {
+        'truck': truck,
+        'initial_location': initial_location
+    })
+
+def get_truck_location(request, truck_id):
+    truck = get_object_or_404(Truck, id=truck_id)
+    if truck.latitude is None or truck.longitude is None:
+        return JsonResponse({
+            'error': 'Location not available'
+        }, status=404)
+    return JsonResponse({
+        'latitude': truck.latitude,
+        'longitude': truck.longitude,
+        'last_updated': truck.last_updated.isoformat()
+    })

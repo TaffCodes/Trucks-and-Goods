@@ -32,6 +32,9 @@ urlpatterns = [
     path('route/edit/<str:route_id>/', edit_route, name='edit_route'),
     path('route/delete/<str:route_id>/', delete_route, name='delete_route'),
     path('route/view/<str:route_id>/', view_route, name='view_route'),
+    path('update_location/<str:truck_id>/', update_truck_location, name='update_truck_location'),
+    path('track/<str:truck_id>/', track_location, name='track_location'),
+    path('get_truck_location/<str:truck_id>/', get_truck_location, name='get_truck_location'),
 
 
 ]
