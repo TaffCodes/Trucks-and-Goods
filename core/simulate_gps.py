@@ -14,10 +14,10 @@ try:
         gpx = gpxpy.parse(gpx_file)
 
     # Truck ID (Replace with actual truck ID from database)
-    truck_id = "V-ALLS"
+    truck_id = "V-UJJE"
 
     # Set the simulation speed (e.g., 60 km/h)
-    speed_kmh = 45  # Change this for different speeds
+    speed_kmh = 120  # Change this for different speeds
     speed_mps = speed_kmh * 1000 / 3600  # Convert to meters per second
 
     # Extract all waypoints from the GPX file

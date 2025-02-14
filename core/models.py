@@ -35,19 +35,6 @@ class Driver(models.Model):
             self.id = generate_unique_id('D')
         super().save(*args, **kwargs)
 
-class Trip(models.Model):
-    id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
-    truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    destination = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, default="pending")
-    start_time = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.id = generate_unique_id('T')
-        super().save(*args, **kwargs)
-
 
 
 class Route(models.Model):
@@ -79,3 +66,16 @@ class Route(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Route'
         verbose_name_plural = 'Routes'
+
+class Trip(models.Model):
+    id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
+    truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)  # Add this line
+    status = models.CharField(max_length=20, default="pending")
+    start_time = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = generate_unique_id('T')
+        super().save(*args, **kwargs)

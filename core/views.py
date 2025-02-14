@@ -4,7 +4,7 @@ from .models import Truck, Driver, Trip, Route
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import SignUpForm, LoginForm,DriverForm, TruckForm, RouteForm
+from .forms import SignUpForm, LoginForm,DriverForm, TruckForm, RouteForm, TripForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
 
@@ -320,3 +320,22 @@ def get_truck_location(request, truck_id):
         'longitude': truck.longitude,
         'last_updated': truck.last_updated.isoformat()
     })
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def add_trip(request):
+    if request.method == 'POST':
+        form = TripForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('trip_management')
+    else:
+        form = TripForm()
+    return render(request, 'add_trip.html', {'form': form})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def trip_management(request):
+    trips = Trip.objects.all()
+    return render(request, 'trip_management.html', {'trips': trips})

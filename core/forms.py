@@ -137,3 +137,15 @@ class RouteForm(forms.ModelForm):
             'distance_km': forms.NumberInput(attrs={'class': 'form-control'}),
             'estimated_fuel_cost': forms.NumberInput(attrs={'class': 'form-control'})
         }
+
+
+
+class TripForm(forms.ModelForm):
+    class Meta:
+        model = Trip
+        fields = ['truck', 'driver', 'route']
+        widgets = {
+            'truck': forms.Select(attrs={'class': 'form-control'}),
+            'driver': forms.Select(attrs={'class': 'form-control'}),
+            'route': forms.Select(attrs={'class': 'form-control'}),
+        }

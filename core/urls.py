@@ -1,8 +1,7 @@
 from django.urls import path, include
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
-from .views import TruckViewSet, DriverViewSet, TripViewSet, landing, signup, login_view, home, logout_view, truck_management, truck_detail, driver_management, add_driver, edit_driver, delete_driver, view_driver, add_truck, edit_truck, delete_truck, view_truck, route_management, add_route, edit_route, delete_route, view_route
-from .views import *
+from .views import TruckViewSet, DriverViewSet, TripViewSet, landing, signup, login_view, home, logout_view, truck_management, truck_detail, driver_management, add_driver, edit_driver, delete_driver, view_driver, add_truck, edit_truck, delete_truck, view_truck, route_management, add_route, edit_route, delete_route, view_route, update_truck_location, track_location, get_truck_location, trip_management, add_trip
 
 router = DefaultRouter()
 router.register(r'trucks', TruckViewSet)
@@ -35,6 +34,7 @@ urlpatterns = [
     path('update_location/<str:truck_id>/', update_truck_location, name='update_truck_location'),
     path('track/<str:truck_id>/', track_location, name='track_location'),
     path('get_truck_location/<str:truck_id>/', get_truck_location, name='get_truck_location'),
-
+    path('trip_management/', trip_management, name='trip_management'),
+    path('trip/add/', add_trip, name='add_trip'),
 
 ]
