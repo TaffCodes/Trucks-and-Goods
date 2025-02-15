@@ -7,7 +7,10 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <style>
         body {
             margin: 0;
@@ -50,24 +53,27 @@
         var map = L.map('map').setView([-1.2921, 36.8219], 10);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // Array to keep track of markers
-        var markers = [];
+        // Create a marker cluster group
+        var markers = L.markerClusterGroup();
 
         // Function to fetch and update truck locations
         function updateTruckLocations() {
             fetch("{% url 'get_truck_locations' %}")
                 .then(response => response.json())
                 .then(data => {
-                    // Remove existing markers
-                    markers.forEach(marker => map.removeLayer(marker));
-                    markers = [];
+                    // Clear existing markers
+                    markers.clearLayers();
 
                     var truckLocations = data.truck_locations;
                     truckLocations.forEach(function(truck) {
-                        var marker = L.marker([truck.latitude, truck.longitude]).addTo(map);
-                        marker.bindPopup('<b>' + truck.number_plate + '</b><br>Truck ID: ' + truck.truck_id + '<br>Trip ID: ' + truck.trip_id + '<br>Status: ' + truck.trip_status);
-                        markers.push(marker);
+                        var marker = L.marker([truck.latitude, truck.longitude]);
+                        var tooltipContent = '<b>' + truck.number_plate + '</b><br>Truck ID: ' + truck.truck_id + '<br>Trip ID: ' + truck.trip_id + '<br>Status: ' + truck.trip_status;
+                        marker.bindTooltip(tooltipContent, { permanent: true, direction: 'right' });
+                        markers.addLayer(marker);
                     });
+
+                    // Add the marker cluster group to the map
+                    map.addLayer(markers);
                 });
         }
 

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Home</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            height: 90vh;
+        }
+        .left-container {
+            flex: 1;
+            padding: 20px;
+            max-width: 48%;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .right-container {
+            display: flex;
+            max-width: 48%;
+            flex: 1;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .right-container .card {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .trip-list {
+            list-style: none;
+            padding: 0;
+        }
+        .trip-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px 0;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Welcome, {{ driver.user.get_full_name }}</h1>
+        <div class="left-container">
+            
+            
+            <h2>Current Trip</h2>
+            {% if current_trip %}
+            <div class="trip-item">
+                <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ current_trip.status }}</p>
+                <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
+                <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
+                <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
+            </div>
+            {% else %}
+            <p>No current trip.</p>
+            {% endif %}
+            
+            <h2>Pending Trips</h2>
+            <ul class="trip-list">
+                {% for trip in pending_trips %}
+                <li class="trip-item">
+                    <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                    <p><strong>Status:</strong> {{ trip.status }}</p>
+                    <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
+                </li>
+                {% endfor %}
+            </ul>
+        
+            <div class="card">
+                <h2>Paused Trips</h2>
+                <ul class="trip-list">
+                    {% for trip in paused_trips %}
+                    <li class="trip-item">
+                        <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                        <p><strong>Status:</strong> {{ trip.status }}</p>
+                        <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
+                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>Resumed Trips</h2>
+                <ul class="trip-list">
+                    {% for trip in resumed_trips %}
+                    <li class="trip-item">
+                        <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                        <p><strong>Status:</strong> {{ trip.status }}</p>
+                        <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
+                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -11,6 +11,7 @@ from django.core.management import call_command
 import threading
 from django.http import JsonResponse
 import gpxpy
+from django.utils import timezone
 
 
 
@@ -51,6 +52,8 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            if user.groups.filter(name='Driver').exists():
+                return redirect('driver_home')
             return redirect('home')
     else:
         form = LoginForm()
@@ -72,6 +75,11 @@ def logout_view(request):
 
 def is_fleet_manager(user):
     return user.groups.filter(name='Fleet manager').exists()
+
+def is_driver(user):
+    return user.groups.filter(name='Driver').exists()
+
+
 
 # @user_passes_test(is_fleet_manager)
 # @login_required
@@ -101,6 +109,24 @@ def truck_detail(request, truck_id):
     truck = get_object_or_404(Truck, id=truck_id)
     return render(request, 'truck_detail.html', {'truck': truck})
 
+
+@login_required
+@user_passes_test(is_driver)
+def driver_home(request):
+    driver = request.user.driver
+    pending_trips = Trip.objects.filter(driver=driver, status='pending')
+    started_trips = Trip.objects.filter(driver=driver, status='started')
+    paused_trips = Trip.objects.filter(driver=driver, status='paused')
+    resumed_trips = Trip.objects.filter(driver=driver, status='resumed')
+    current_trip = Trip.objects.filter(driver=driver, status='started').first()
+    return render(request, 'driver_home.html', {
+        'driver': driver,
+        'pending_trips': pending_trips,
+        'started_trips': started_trips,
+        'paused_trips': paused_trips,
+        'resumed_trips': resumed_trips,
+        'current_trip': current_trip
+    })
 
 @login_required
 @user_passes_test(is_fleet_manager)
@@ -366,9 +392,10 @@ def route_management(request):
 
 
 @login_required
-@user_passes_test(is_fleet_manager)
+@user_passes_test(is_driver)
 def start_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
+    trip.start_time = timezone.now()
     trip.status = 'started'
     trip.save()
 
@@ -401,7 +428,7 @@ def delete_trip(request, trip_id):
 
 
 @login_required
-@user_passes_test(is_fleet_manager)
+@user_passes_test(is_driver)
 def pause_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     # Capture the current coordinates
@@ -416,18 +443,21 @@ def pause_trip(request, trip_id):
 
 
 @login_required
-@user_passes_test(is_fleet_manager)
+@user_passes_test(is_driver)
 def resume_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     trip.status = 'resumed'
+    trip.end_time = timezone.now()
     trip.save()
 
     # Trigger the GPS simulation in a separate thread
     threading.Thread(target=call_command, args=('simulate_gps_command',), kwargs={'trip_id': trip.id}).start()
 
     return JsonResponse({"status": "success", "message": "Trip resumed and GPS simulation initiated."})
+
+
 @login_required
-@user_passes_test(is_fleet_manager)
+@user_passes_test(is_driver)
 def end_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     trip.status = 'ended'
@@ -474,3 +504,17 @@ def get_truck_locations(request):
             })
 
     return JsonResponse({'truck_locations': truck_locations})
+
+
+@login_required
+@user_passes_test(is_driver)
+def previous_trips(request):
+    driver = request.user.driver
+    trips = Trip.objects.filter(driver=driver).order_by('-start_time')
+    return render(request, 'previous_trips.html', {'trips': trips})
+
+
+@login_required
+def trip_details(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    return render(request, 'trip_details.html', {'trip': trip})

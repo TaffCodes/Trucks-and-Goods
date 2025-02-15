@@ -78,10 +78,7 @@
                     <td>{{ trip.status }}</td>
                     <td>{{ trip.start_time }}</td>
                     <td>
-                        <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
-                        <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
-                        <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
-                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                        <a href="{% url 'trip_details' trip.id %}" class="btn">View</a>
                         <a href="{% url 'edit_trip' trip.id %}" class="btn">Edit</a>
                         <a href="{% url 'delete_trip' trip.id %}" class="btn btn-danger">Delete</a>
                     </td>

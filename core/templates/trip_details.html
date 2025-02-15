@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Details</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .trip-details {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trip Details</h1>
+        <div class="trip-details">
+            <p><strong>Trip ID:</strong> {{ trip.id }}</p>
+            <p><strong>Driver:</strong> {{ trip.driver.user.get_full_name }}</p>
+            <p><strong>Truck:</strong> {{ trip.truck.registration_number }}</p>
+            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+            <p><strong>Status:</strong> {{ trip.status }}</p>
+            <p><strong>Start Time:</strong> {{ trip.start_time }}</p>
+            <p><strong>End Time:</strong> {{ trip.end_time }}</p>
+            <p><strong>Last Latitude:</strong> {{ trip.last_latitude }}</p>
+            <p><strong>Last Longitude:</strong> {{ trip.last_longitude }}</p>
+        </div>
+        <a href="{% url 'driver_home' %}" class="btn">Back to Home</a>
+    </div>
+</body>
+</html>

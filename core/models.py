@@ -72,10 +72,17 @@ class Trip(models.Model):
     id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    route = models.ForeignKey(Route, on_delete=models.CASCADE)  # Add this line
-    status = models.CharField(max_length=20, default="pending")
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(auto_now_add=True)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('pending', 'pending'),
+        ('started', 'started'),
+        ('paused', 'paused'),
+        ('resumed', 'resumed'),
+        ('ended', 'ended'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     last_longitude = models.FloatField(null=True, blank=True)
     last_latitude = models.FloatField(null=True, blank=True)
 
