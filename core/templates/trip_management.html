@@ -47,6 +47,7 @@
                 <li><a href="{% url 'home' %}">Home</a></li>
                 <li><a href="{% url 'truck_management' %}">Truck Management</a></li>
                 <li><a href="{% url 'driver_management' %}">Driver Management</a></li>
+                <li><a href="{% url 'route_management' %}">Route Management</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
@@ -61,7 +62,7 @@
                     <th>ID</th>
                     <th>Truck</th>
                     <th>Driver</th>
-                    <th>Destination</th>
+                    <th>Route</th>
                     <th>Status</th>
                     <th>Start Time</th>
                     <th>Actions</th>
@@ -73,10 +74,17 @@
                     <td>{{ trip.id }}</td>
                     <td>{{ trip.truck.number_plate }}</td>
                     <td>{{ trip.driver.user.get_full_name }}</td>
-                    <td>{{ trip.destination }}</td>
+                    <td>{{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</td>
                     <td>{{ trip.status }}</td>
                     <td>{{ trip.start_time }}</td>
-                   
+                    <td>
+                        <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
+                        <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
+                        <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
+                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                        <a href="{% url 'edit_trip' trip.id %}" class="btn">Edit</a>
+                        <a href="{% url 'delete_trip' trip.id %}" class="btn btn-danger">Delete</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

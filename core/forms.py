@@ -130,12 +130,14 @@ class TruckForm(forms.ModelForm):
 class RouteForm(forms.ModelForm):
     class Meta:
         model = Route
-        fields = ['start_location', 'end_location', 'distance_km', 'estimated_fuel_cost']
+        fields = ['start_location', 'end_location', 'distance_km', 'estimated_fuel_cost', 'gpx_file']
         widgets = {
             'start_location': forms.TextInput(attrs={'class': 'form-control'}),
             'end_location': forms.TextInput(attrs={'class': 'form-control'}),
             'distance_km': forms.NumberInput(attrs={'class': 'form-control'}),
-            'estimated_fuel_cost': forms.NumberInput(attrs={'class': 'form-control'})
+            'estimated_fuel_cost': forms.NumberInput(attrs={'class': 'form-control'}),
+            'gpx_file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+
         }
 
 
@@ -149,3 +151,4 @@ class TripForm(forms.ModelForm):
             'driver': forms.Select(attrs={'class': 'form-control'}),
             'route': forms.Select(attrs={'class': 'form-control'}),
         }
+

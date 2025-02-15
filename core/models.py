@@ -51,6 +51,7 @@ class Route(models.Model):
         validators=[MinValueValidator(0.0)],
         help_text="Estimated cost in currency"
     )
+    gpx_file = models.FileField(upload_to='gpx_files/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -74,6 +75,10 @@ class Trip(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE)  # Add this line
     status = models.CharField(max_length=20, default="pending")
     start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(auto_now_add=True)
+    last_longitude = models.FloatField(null=True, blank=True)
+    last_latitude = models.FloatField(null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         if not self.id:

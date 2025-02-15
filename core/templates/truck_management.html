@@ -78,6 +78,7 @@ _management.html
                     <td>{{ truck.status }}</td>
                     <td>
                         <a href="{% url 'track_location' truck.id %}" class="btn">Track Location</a>
+
                         <a href="{% url 'edit_truck' truck.id %}" class="btn">Edit</a>
                         <a href="{% url 'delete_truck' truck.id %}" class="btn btn-danger">Delete</a>
                         

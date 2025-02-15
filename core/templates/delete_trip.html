@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Trip</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        .delete-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .warning {
+            color: #dc3545;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'trip_management' %}">Back to Trip Management</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="delete-container">
+            <h1>Delete Trip</h1>
+            <div class="warning">
+                <p>Are you sure you want to delete the following trip?</p>
+                <p><strong>Trip ID:</strong> {{ trip.id }}</p>
+                <p><strong>Truck:</strong> {{ trip.truck.number_plate }}</p>
+                <p><strong>Driver:</strong> {{ trip.driver.user.get_full_name }}</p>
+                <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ trip.status }}</p>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                <a href="{% url 'trip_management' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

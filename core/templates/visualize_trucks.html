@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualize Trucks</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 80vh;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'truck_management' %}">Truck Management</a></li>
+                <li><a href="{% url 'driver_management' %}">Driver Management</a></li>
+                <li><a href="{% url 'route_management' %}">Route Management</a></li>
+                <li><a href="{% url 'trip_management' %}">Trip Management</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Visualize Trucks</h1>
+        <div id="map"></div>
+    </div>
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([-1.2921, 36.8219], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Array to keep track of markers
+        var markers = [];
+
+        // Function to fetch and update truck locations
+        function updateTruckLocations() {
+            fetch("{% url 'get_truck_locations' %}")
+                .then(response => response.json())
+                .then(data => {
+                    // Remove existing markers
+                    markers.forEach(marker => map.removeLayer(marker));
+                    markers = [];
+
+                    var truckLocations = data.truck_locations;
+                    truckLocations.forEach(function(truck) {
+                        var marker = L.marker([truck.latitude, truck.longitude]).addTo(map);
+                        marker.bindPopup('<b>' + truck.number_plate + '</b><br>Truck ID: ' + truck.truck_id + '<br>Trip ID: ' + truck.trip_id + '<br>Status: ' + truck.trip_status);
+                        markers.push(marker);
+                    });
+                });
+        }
+
+        // Initial fetch of truck locations
+        updateTruckLocations();
+
+        // Periodically update truck locations every 5 seconds
+        setInterval(updateTruckLocations, 1000);
+    </script>
+</body>
+</html>

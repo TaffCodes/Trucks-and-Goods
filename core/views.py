@@ -7,6 +7,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm, LoginForm,DriverForm, TruckForm, RouteForm, TripForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import permission_required, login_required, user_passes_test
+from django.core.management import call_command
+import threading
+from django.http import JsonResponse
+import gpxpy
 
 
 
@@ -339,3 +343,134 @@ def add_trip(request):
 def trip_management(request):
     trips = Trip.objects.all()
     return render(request, 'trip_management.html', {'trips': trips})
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def add_route(request):
+    if request.method == 'POST':
+        form = RouteForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('route_management')
+    else:
+        form = RouteForm()
+    return render(request, 'add_route.html', {'form': form})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def route_management(request):
+    routes = Route.objects.all()
+    return render(request, 'route_management.html', {'routes': routes})
+
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def start_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    trip.status = 'started'
+    trip.save()
+
+    # Trigger the GPS simulation in a separate thread
+    threading.Thread(target=call_command, args=('simulate_gps_command', trip.truck.id, trip.route.gpx_file.path)).start()
+
+    return JsonResponse({"status": "success", "message": "Trip started and GPS simulation initiated."})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def edit_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    if request.method == 'POST':
+        form = TripForm(request.POST, instance=trip)
+        if form.is_valid():
+            form.save()
+            return redirect('trip_management')
+    else:
+        form = TripForm(instance=trip)
+    return render(request, 'edit_trip.html', {'form': form, 'trip': trip})
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def delete_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    if request.method == 'POST':
+        trip.delete()
+        return redirect('trip_management')
+    return render(request, 'delete_trip.html', {'trip': trip})
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def pause_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    # Capture the current coordinates
+    current_latitude = request.GET.get('latitude')
+    current_longitude = request.GET.get('longitude')
+    if current_latitude and current_longitude:
+        trip.last_latitude = float(current_latitude)
+        trip.last_longitude = float(current_longitude)
+    trip.status = 'paused'
+    trip.save()
+    return JsonResponse({"status": "success", "message": "Trip paused."})
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def resume_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    trip.status = 'resumed'
+    trip.save()
+
+    # Trigger the GPS simulation in a separate thread
+    threading.Thread(target=call_command, args=('simulate_gps_command',), kwargs={'trip_id': trip.id}).start()
+
+    return JsonResponse({"status": "success", "message": "Trip resumed and GPS simulation initiated."})
+@login_required
+@user_passes_test(is_fleet_manager)
+def end_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    trip.status = 'ended'
+    trip.save()
+    return JsonResponse({"status": "success", "message": "Trip ended."})
+
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def visualize_trucks(request):
+    trucks = Truck.objects.all()
+    truck_locations = []
+
+    for truck in trucks:
+        if truck.latitude is not None and truck.longitude is not None:
+            truck_locations.append({
+                'truck_id': truck.id,
+                'number_plate': truck.number_plate,
+                'latitude': truck.latitude,
+                'longitude': truck.longitude
+            })
+
+    return render(request, 'visualize_trucks.html', {'truck_locations': truck_locations})
+
+
+
+@login_required
+@user_passes_test(is_fleet_manager)
+def get_truck_locations(request):
+    trucks = Truck.objects.all()
+    truck_locations = []
+
+    for truck in trucks:
+        last_trip = Trip.objects.filter(truck=truck).order_by('-start_time').first()
+        if truck.latitude is not None and truck.longitude is not None:
+            truck_locations.append({
+                'truck_id': truck.id,
+                'number_plate': truck.number_plate,
+                'latitude': truck.latitude,
+                'longitude': truck.longitude,
+                'trip_id': last_trip.id if last_trip else None,
+                'trip_status': last_trip.status if last_trip else 'No active trip'
+            })
+
+    return JsonResponse({'truck_locations': truck_locations})

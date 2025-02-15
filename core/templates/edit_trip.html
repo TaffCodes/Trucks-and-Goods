@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Route</title>
+    <title>Edit Trip</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
@@ -50,15 +50,15 @@
         <nav>
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'route_management' %}">Back to Route Management</a></li>
+                <li><a href="{% url 'trip_management' %}">Back to Trip Management</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
     </header>
     <main>
         <div class="form-container">
-            <h1>Add New Route</h1>
-            <form method="post" enctype="multipart/form-data">
+            <h1>Edit Trip</h1>
+            <form method="post">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
@@ -76,7 +76,8 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                <button type="submit" class="btn">Add Route</button>
+                <button type="submit" class="btn">Save Changes</button>
+                <a href="{% url 'trip_management' %}" class="btn">Cancel</a>
             </form>
         </div>
     </main>
