@@ -30,7 +30,7 @@
         <div class="trip-details">
             <p><strong>Trip ID:</strong> {{ trip.id }}</p>
             <p><strong>Driver:</strong> {{ trip.driver.user.get_full_name }}</p>
-            <p><strong>Truck:</strong> {{ trip.truck.registration_number }}</p>
+            <p><strong>Truck:</strong> {{ trip.truck.number_plate }}</p>
             <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
             <p><strong>Status:</strong> {{ trip.status }}</p>
             <p><strong>Start Time:</strong> {{ trip.start_time }}</p>
