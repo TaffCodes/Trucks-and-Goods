@@ -66,6 +66,23 @@
         .btn-logout:hover {
             background-color: #d1a00d;
         }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+    
+        .status-available {
+            background-color: #28a745;
+            color: white;
+        }
+    
+        .status-unavailable {
+            background-color: #dc3545;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -86,11 +103,18 @@
         <h2>All Trucks</h2>
         <div class="truck-list">
             {% for truck in trucks %}
-                <div class="truck-item">
-                    <a href="{% url 'truck_detail' truck.id %}">{{ truck.number_plate }}</a>
+             <div class="truck-item">
+                <a href="{% url 'truck_detail' truck.id %}">{{ truck.number_plate }}</a>
+                <div class="status-badge {% if truck.is_available %}status-available{% else %}status-unavailable{% endif %}">
+                    {% if truck.is_available %}
+                        Available
+                    {% else %}
+                        In Trip
+                    {% endif %}
                 </div>
-            {% endfor %}
-        </div>
-    </main>
+            </div>
+        {% endfor %}
+    </div>
+</main>
 </body>
 </html>

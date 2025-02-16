@@ -1,31 +1,35 @@
+from django.core.management.base import BaseCommand, CommandError
+from core.models import Trip
 import gpxpy
 import time
 import requests
 from geopy.distance import geodesic
-import os
-from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = 'Simulate GPS for a truck based on a GPX route'
 
     def add_arguments(self, parser):
-        parser.add_argument('truck_id', type=str, help='Truck ID')
-        parser.add_argument('gpx_file_path', type=str, help='Path to the GPX file')
+        # Define required positional arguments
+        parser.add_argument('truck_id', type=str)
+        parser.add_argument('gpx_file_path', type=str)
 
-    def handle(self, *args, **kwargs):
-        truck_id = kwargs['truck_id']
-        gpx_file_path = kwargs['gpx_file_path']
-
+    def handle(self, *args, **options):
+        truck_id = options['truck_id']
+        gpx_file_path = options['gpx_file_path']
+        
         try:
+            # Get the active trip for this truck
+            trip = Trip.objects.get(truck_id=truck_id, simulation_active=True)
+            
             # Load the GPX file
             with open(gpx_file_path, 'r') as gpx_file:
                 gpx = gpxpy.parse(gpx_file)
 
-            # Set the simulation speed (e.g., 60 km/h)
-            speed_kmh = 60  # Change this for different speeds
-            speed_mps = speed_kmh * 1000 / 3600  # Convert to meters per second
+            # Set simulation speed
+            speed_kmh = 60
+            speed_mps = speed_kmh * 1000 / 3600
 
-            # Extract all waypoints from the GPX file
+            # Extract waypoints
             waypoints = []
             for track in gpx.tracks:
                 for segment in track.segments:
@@ -36,15 +40,20 @@ class Command(BaseCommand):
 
             # Simulate movement
             for i in range(len(waypoints) - 1):
+                trip.refresh_from_db()
+                if not trip.simulation_active:
+                    print("Simulation stopped - trip ended")
+                    break
+
                 start = waypoints[i]
                 end = waypoints[i + 1]
 
-                # Calculate distance between waypoints
+                # Calculate distance and time
                 distance_meters = geodesic(start, end).meters
                 travel_time_seconds = distance_meters / speed_mps
 
-                # Send location update to Django backend
                 try:
+                    # Send location update
                     response = requests.post(
                         f"http://127.0.0.1:8000/update_location/{truck_id}/",
                         json={
@@ -56,27 +65,21 @@ class Command(BaseCommand):
                             "Accept": "application/json"
                         }
                     )
-
+                    response.raise_for_status()
+                    
                     print(f"Waypoint {i+1}/{len(waypoints)-1}")
-                    print(f"Sent location: {start}")
-                    print(f"Distance to next point: {distance_meters:.2f}m")
-                    print(f"Travel time: {travel_time_seconds:.2f}s")
-                    print(f"Response status: {response.status_code}")
-                    print(f"Response content: {response.text}")
-                    print("-" * 50)
-
-                    # Wait before sending next update
+                    print(f"Location sent: {start}")
                     time.sleep(travel_time_seconds)
 
-                except requests.exceptions.RequestException as e:
+                except requests.RequestException as e:
                     print(f"Failed to send location update: {e}")
                     continue
 
+        except Trip.DoesNotExist:
+            raise CommandError(f"No active trip found for truck {truck_id}")
         except FileNotFoundError:
-            print(f"Error: GPX file not found at {gpx_file_path}")
-        except requests.exceptions.ConnectionError:
-            print("Error: Could not connect to Django server at http://127.0.0.1:8000")
+            raise CommandError(f"GPX file not found: {gpx_file_path}")
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
+            raise CommandError(f"Simulation error: {str(e)}")
         finally:
             print("Simulation ended")

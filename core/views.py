@@ -391,19 +391,34 @@ def route_management(request):
 
 
 
+from django.utils import timezone
+
 @login_required
 @user_passes_test(is_driver)
 def start_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
-    trip.start_time = timezone.now()
     trip.status = 'started'
+    trip.simulation_active = True
+    trip.start_time = timezone.now()
     trip.save()
+    
+    # Pass required arguments as positional args, not kwargs
+    threading.Thread(target=call_command, 
+                    args=('simulate_gps_command', 
+                          str(trip.truck.id), 
+                          trip.route.gpx_file.path)).start()
+    
+    return JsonResponse({"status": "success", "message": "Trip started."})
 
-    # Trigger the GPS simulation in a separate thread
-    threading.Thread(target=call_command, args=('simulate_gps_command', trip.truck.id, trip.route.gpx_file.path)).start()
-
-    return JsonResponse({"status": "success", "message": "Trip started and GPS simulation initiated."})
-
+@login_required
+@user_passes_test(is_driver)
+def end_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    trip.status = 'ended'
+    trip.simulation_active = False
+    trip.end_time = timezone.now()
+    trip.save()
+    return JsonResponse({"status": "success", "message": "Trip ended and simulation stopped."})
 @login_required
 @user_passes_test(is_fleet_manager)
 def edit_trip(request, trip_id):
@@ -456,13 +471,6 @@ def resume_trip(request, trip_id):
     return JsonResponse({"status": "success", "message": "Trip resumed and GPS simulation initiated."})
 
 
-@login_required
-@user_passes_test(is_driver)
-def end_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
-    trip.status = 'ended'
-    trip.save()
-    return JsonResponse({"status": "success", "message": "Trip ended."})
 
 
 

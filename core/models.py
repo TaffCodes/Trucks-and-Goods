@@ -17,7 +17,23 @@ class Truck(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
-
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('in_trip', 'In Trip'),
+        ('maintenance', 'Under Maintenance')
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='available'
+    )
+    @property
+    def is_available(self):
+        active_trips = self.trip_set.filter(
+            status__in=['started', 'paused', 'resumed', 'pending']
+        ).exists()
+        return not active_trips
+        
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = generate_unique_id('V')
@@ -68,6 +84,8 @@ class Route(models.Model):
         verbose_name = 'Route'
         verbose_name_plural = 'Routes'
 
+
+
 class Trip(models.Model):
     id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
@@ -85,9 +103,38 @@ class Trip(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     last_longitude = models.FloatField(null=True, blank=True)
     last_latitude = models.FloatField(null=True, blank=True)
-
+    simulation_active = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = generate_unique_id('T')
+        
+        # Update truck status based on trip status
+        if self.status in ['started', 'paused', 'resumed']:
+            self.truck.status = 'in_trip'
+        elif self.status == 'ended':
+            # Check if there are any other active trips for this truck
+            active_trips = Trip.objects.filter(
+                truck=self.truck,
+                status__in=['started', 'paused', 'resumed']
+            ).exclude(id=self.id)
+            
+            if not active_trips.exists():
+                self.truck.status = 'available'
+        
+        self.truck.save()
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # When deleting a trip, check if it's the last active trip for the truck
+        if self.status in ['started', 'paused', 'resumed']:
+            active_trips = Trip.objects.filter(
+                truck=self.truck,
+                status__in=['started', 'paused', 'resumed']
+            ).exclude(id=self.id)
+            
+            if not active_trips.exists():
+                self.truck.status = 'available'
+                self.truck.save()
+        
+        super().delete(*args, **kwargs)
