@@ -1,47 +1,112 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Home</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #008600;
+            color: white;
+            padding: 5px 0; /* Reduced padding */
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5em; /* Reduced font size */
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #008600;
+            padding: 10px 20px;
+        }
+
+        nav .user-info {
+            color: white;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007bff; /* Blue color for buttons */
+            border-radius: 5px;
+        }
+
+        nav ul li a:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .logout-btn {
+            background-color: #ff0000; /* Red color for logout button */
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000; /* Darker red on hover */
+        }
+
+        footer {
+            background-color: #008600;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
         .main-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Changed to row for two columns */
             max-width: 100%;
             margin: 0 auto;
             padding: 20px;
             height: 90vh;
         }
-        .left-container {
+
+        .left-container, .right-container {
             flex: 1;
             padding: 20px;
-            max-width: 48%;
-            background-color: #f9f9f9;
+            background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin: 10px; /* Added margin for spacing between columns */
         }
-        .right-container {
-            display: flex;
-            max-width: 48%;
-            flex: 1;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .right-container .card {
-            flex: 1;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+
         .trip-list {
             list-style: none;
             padding: 0;
         }
+
         .trip-item {
             margin: 10px 0;
             padding: 10px;
@@ -49,78 +114,112 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
+
         .btn {
             display: inline-block;
             padding: 10px 20px;
             margin: 5px 0;
-            background-color: #007bff;
+            background-color: #007bff; /* Blue color for buttons */
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
         }
+
         .btn:hover {
-            background-color: #0056b3;
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .logout-btn {
+            background-color: #ff0000; /* Red color for logout button */
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000; /* Darker red on hover */
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <h1>Welcome, {{ driver.user.get_full_name }}</h1>
-        <div class="left-container">
-            
-            
-            <h2>Current Trip</h2>
-            {% if current_trip %}
-            <div class="trip-item">
-                <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
-                <p><strong>Status:</strong> {{ current_trip.status }}</p>
-                <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
-                <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
-                <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
-            </div>
+    <header>
+        <h1>Driver Home</h1>
+    </header>
+    <nav>
+        <div class="user-info">
+            {% if user.is_authenticated %}
+                <p>You are logged in as {{ user.username }}</p>
             {% else %}
-            <p>No current trip.</p>
+                <p>You are not logged in.</p>
             {% endif %}
-            
-            <h2>Pending Trips</h2>
-            <ul class="trip-list">
-                {% for trip in pending_trips %}
-                <li class="trip-item">
-                    <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-                    <p><strong>Status:</strong> {{ trip.status }}</p>
-                    <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
-                </li>
-                {% endfor %}
-            </ul>
-        
-            <div class="card">
-                <h2>Paused Trips</h2>
+        </div>
+        <ul>
+            <li><a href="{% url 'previous_trips' %}" class="btn">Previous Trips</a></li>
+            <li><a href="{% url 'logout' %}" class="btn logout-btn">Logout</a></li>
+        </ul>
+    </nav>
+    <main class="content">
+        <div class="main-container">
+            <div class="left-container">
+                <h2>Current Trip</h2>
+                {% if current_trip %}
+                <div class="trip-item">
+                    <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
+                    <p><strong>Status:</strong> {{ current_trip.status }}</p>
+                    <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
+                    <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
+                    <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
+                </div>
+                {% else %}
+                <p>No current trip.</p>
+                {% endif %}
+                
+                <h2>Pending Trips</h2>
                 <ul class="trip-list">
-                    {% for trip in paused_trips %}
+                    {% for trip in pending_trips %}
                     <li class="trip-item">
                         <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
                         <p><strong>Status:</strong> {{ trip.status }}</p>
-                        <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
-                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                        <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
                     </li>
                     {% endfor %}
                 </ul>
+            
+                <div class="card">
+                    <h2>Paused Trips</h2>
+                    <ul class="trip-list">
+                        {% for trip in paused_trips %}
+                        <li class="trip-item">
+                            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                            <p><strong>Status:</strong> {{ trip.status }}</p>
+                            <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
+                            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h2>Resumed Trips</h2>
+                    <ul class="trip-list">
+                        {% for trip in resumed_trips %}
+                        <li class="trip-item">
+                            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                            <p><strong>Status:</strong> {{ trip.status }}</p>
+                            <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
+                            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-            
-            <div class="card">
-                <h2>Resumed Trips</h2>
-                <ul class="trip-list">
-                    {% for trip in resumed_trips %}
-                    <li class="trip-item">
-                        <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-                        <p><strong>Status:</strong> {{ trip.status }}</p>
-                        <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
-                        <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
-                    </li>
-                    {% endfor %}
-                </ul>
+            <div class="right-container">
+                <div class="card">
+                    <h2>Notifications</h2>
+                    <div id="map"></div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Truck Management System</p>
+    </footer>
 </body>
 </html>
