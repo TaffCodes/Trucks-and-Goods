@@ -3,223 +3,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Home</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Home</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-        header {
-            background-color: #008600;
-            color: white;
-            padding: 5px 0; /* Reduced padding */
-            text-align: center;
-        }
+    header {
+      background-color: #008600;
+      color: white;
+      padding: 5px 0;
+      text-align: center;
+    }
 
-        header h1 {
-            font-size: 1.5em; /* Reduced font size */
-            margin: 0;
-        }
+    header h1 {
+      font-size: 1.5em;
+      margin: 0;
+    }
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #008600;
-            padding: 10px 20px;
-        }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #008600;
+      padding: 10px 20px;
+    }
 
-        nav .user-info {
-            color: white;
-        }
+    nav .user-info {
+      color: white;
+    }
 
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-        }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+    }
 
-        nav ul li {
-            margin-left: 10px;
-        }
+    nav ul li {
+      margin-left: 10px;
+    }
 
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background-color: #007bff; /* Blue color for buttons */
-            border-radius: 5px;
-        }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      background-color: #007bff;
+      border-radius: 5px;
+    }
 
-        nav ul li a:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
+    nav ul li a:hover {
+      background-color: #0056b3;
+    }
 
-        .logout-btn {
-            background-color: #ff0000; /* Red color for logout button */
-        }
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow: hidden;
+    }
 
-        .logout-btn:hover {
-            background-color: #cc0000; /* Darker red on hover */
-        }
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two equal columns */
+      gap: 20px;
+      height: calc(100vh - 150px);
+    }
 
-        footer {
-            background-color: #008600;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            width: 100%;
-            bottom: 0;
-        }
+    /* First Column: Trip Cards */
+    .trips-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
 
-        .content {
-            padding: 20px;
-        }
+    .trip-card {
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .main-container {
-            display: flex;
-            flex-direction: row; /* Changed to row for two columns */
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-            height: 90vh;
-        }
+    .card-header {
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      margin: -15px -15px 15px -15px;
+      border-radius: 5px 5px 0 0;
+    }
 
-        .left-container, .right-container {
-            flex: 1;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 10px; /* Added margin for spacing between columns */
-        }
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.2em;
+      color: #333;
+    }
 
-        .trip-list {
-            list-style: none;
-            padding: 0;
-        }
+    .trip-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+      flex: 1;
+    }
 
-        .trip-item {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
+    .trip-item {
+      margin: 10px 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
 
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 5px 0;
-            background-color: #007bff; /* Blue color for buttons */
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 5px 0;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
 
-        .btn:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
+    .btn:hover {
+      background-color: #0056b3;
+    }
 
-        .logout-btn {
-            background-color: #ff0000; /* Red color for logout button */
-        }
+    .logout-btn {
+      background-color: #ff0000;
+    }
 
-        .logout-btn:hover {
-            background-color: #cc0000; /* Darker red on hover */
-        }
-    </style>
+    .logout-btn:hover {
+      background-color: #cc0000;
+    }
+
+    /* Second Column: Notifications and Map */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .notifications-card,
+    .map-container {
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Both cards take up half of the right column */
+    .notifications-card {
+      flex: 1 1 50%;
+    }
+
+    .map-container {
+      flex: 1 1 50%;
+    }
+
+    footer {
+      background-color: #008600;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      margin-top: auto;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Driver Home</h1>
-    </header>
-    <nav>
-        <div class="user-info">
-            {% if user.is_authenticated %}
-                <p>You are logged in as {{ user.username }}</p>
+  <header>
+    <h1>Driver Home</h1>
+  </header>
+  <nav>
+    <div class="user-info">
+      {% if user.is_authenticated %}
+        <p>You are logged in as {{ user.username }}</p>
+      {% else %}
+        <p>You are not logged in.</p>
+      {% endif %}
+    </div>
+    <ul>
+      <li><a href="{% url 'previous_trips' %}" class="btn">Previous Trips</a></li>
+      <li><a href="{% url 'logout' %}" class="btn logout-btn">Logout</a></li>
+    </ul>
+  </nav>
+  <main class="content">
+    <div class="main-container">
+      <!-- First Column: Trip Cards -->
+      <div class="trips-container">
+        <!-- Current Trip Card -->
+        <div class="trip-card">
+          <div class="card-header">
+            <h2>Current Trip</h2>
+          </div>
+          <div class="trip-list">
+            {% if current_trip %}
+              <div class="trip-item">
+                <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ current_trip.status }}</p>
+                <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
+                <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
+                <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
+              </div>
             {% else %}
-                <p>You are not logged in.</p>
+              <p>No current trip.</p>
             {% endif %}
+          </div>
         </div>
-        <ul>
-            <li><a href="{% url 'previous_trips' %}" class="btn">Previous Trips</a></li>
-            <li><a href="{% url 'logout' %}" class="btn logout-btn">Logout</a></li>
-        </ul>
-    </nav>
-    <main class="content">
-        <div class="main-container">
-            <div class="left-container">
-                <h2>Current Trip</h2>
-                {% if current_trip %}
-                <div class="trip-item">
-                    <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
-                    <p><strong>Status:</strong> {{ current_trip.status }}</p>
-                    <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
-                    <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
-                    <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
-                </div>
-                {% else %}
-                <p>No current trip.</p>
-                {% endif %}
-                
-                <h2>Pending Trips</h2>
-                <ul class="trip-list">
-                    {% for trip in pending_trips %}
-                    <li class="trip-item">
-                        <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-                        <p><strong>Status:</strong> {{ trip.status }}</p>
-                        <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            
-                <div class="card">
-                    <h2>Paused Trips</h2>
-                    <ul class="trip-list">
-                        {% for trip in paused_trips %}
-                        <li class="trip-item">
-                            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-                            <p><strong>Status:</strong> {{ trip.status }}</p>
-                            <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
-                            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                
-                <div class="card">
-                    <h2>Resumed Trips</h2>
-                    <ul class="trip-list">
-                        {% for trip in resumed_trips %}
-                        <li class="trip-item">
-                            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-                            <p><strong>Status:</strong> {{ trip.status }}</p>
-                            <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
-                            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            <div class="right-container">
-                <div class="card">
-                    <h2>Notifications</h2>
-                    <div id="map"></div>
-                </div>
-            </div>
+
+        <!-- Pending Trips Card -->
+        <div class="trip-card">
+          <div class="card-header">
+            <h2>Pending Trips</h2>
+          </div>
+          <div class="trip-list">
+            {% for trip in pending_trips %}
+              <div class="trip-item">
+                <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ trip.status }}</p>
+                <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
+              </div>
+            {% endfor %}
+          </div>
         </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 Truck Management System</p>
-    </footer>
+
+        <!-- Paused Trips Card -->
+        <div class="trip-card">
+          <div class="card-header">
+            <h2>Paused Trips</h2>
+          </div>
+          <div class="trip-list">
+            {% for trip in paused_trips %}
+              <div class="trip-item">
+                <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ trip.status }}</p>
+                <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
+                <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Resumed Trips Card -->
+        <div class="trip-card">
+          <div class="card-header">
+            <h2>Resumed Trips</h2>
+          </div>
+          <div class="trip-list">
+            {% for trip in resumed_trips %}
+              <div class="trip-item">
+                <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+                <p><strong>Status:</strong> {{ trip.status }}</p>
+                <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
+                <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Column: Notifications on Top Half and Map on Bottom Half -->
+      <div class="right-column">
+        <!-- Notifications Card (Top Half) -->
+        <div class="notifications-card">
+          <div class="card-header">
+            <h2>Notifications</h2>
+          </div>
+          <div class="notifications-content">
+            <p>No new notifications.</p>
+            <!-- Add more notification items as needed -->
+          </div>
+        </div>
+
+        <!-- Map Container (Bottom Half) -->
+        <div class="map-container">
+          <div id="map" style="height: 100%;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
 </body>
 </html>

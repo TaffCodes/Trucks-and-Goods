@@ -143,6 +143,27 @@ class RouteForm(forms.ModelForm):
 
 
 class TripForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Get drivers who are not in active trips
+        available_drivers = Driver.objects.exclude(
+            trip__status__in=['started', 'paused', 'resumed', 'pending']
+        ).distinct()
+        
+        # Get trucks that are not in active trips
+        available_trucks = Truck.objects.exclude(
+            trip__status__in=['started', 'paused', 'resumed', 'pending']
+        ).distinct()
+        
+        # Update form field querysets
+        self.fields['driver'].queryset = available_drivers
+        self.fields['truck'].queryset = available_trucks
+        
+        # Add help texts
+        self.fields['driver'].help_text = "Only drivers not currently assigned to active trips"
+        self.fields['truck'].help_text = "Only trucks not currently assigned to active trips"
+
     class Meta:
         model = Trip
         fields = ['truck', 'driver', 'route']
@@ -152,3 +173,25 @@ class TripForm(forms.ModelForm):
             'route': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        driver = cleaned_data.get('driver')
+        truck = cleaned_data.get('truck')
+
+        if driver:
+            active_trips = Trip.objects.filter(
+                driver=driver,
+                status__in=['started', 'paused', 'resumed', 'pending']
+            )
+            if active_trips.exists():
+                raise forms.ValidationError("This driver is already assigned to an active trip.")
+
+        if truck:
+            active_trips = Trip.objects.filter(
+                truck=truck,
+                status__in=['started', 'paused', 'resumed', 'pending']
+            )
+            if active_trips.exists():
+                raise forms.ValidationError("This truck is already assigned to an active trip.")
+
+        return cleaned_data
