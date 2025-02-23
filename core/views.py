@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
 from .models import Truck, Driver, Trip, Route
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
+from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignUpForm, LoginForm,DriverForm, TruckForm, RouteForm, TripForm
@@ -396,29 +397,40 @@ from django.utils import timezone
 @login_required
 @user_passes_test(is_driver)
 def start_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
-    trip.status = 'started'
-    trip.simulation_active = True
-    trip.start_time = timezone.now()
-    trip.save()
-    
-    # Pass required arguments as positional args, not kwargs
-    threading.Thread(target=call_command, 
-                    args=('simulate_gps_command', 
-                          str(trip.truck.id), 
-                          trip.route.gpx_file.path)).start()
-    
-    return JsonResponse({"status": "success", "message": "Trip started."})
+    try:
+        trip = get_object_or_404(Trip, id=trip_id)
+        trip.status = 'started'
+        trip.simulation_active = True
+        trip.start_time = timezone.now()
+        trip.save()
+        
+        threading.Thread(target=call_command, 
+                        args=('simulate_gps_command', 
+                              str(trip.truck.id), 
+                              trip.route.gpx_file.path)).start()
+        
+        messages.success(request, f"Trip {trip.id} started successfully.")
+        return redirect('driver_home')
+    except Exception as e:
+        messages.error(request, f"Failed to start trip: {str(e)}")
+        return redirect('driver_home')
 
 @login_required
-@user_passes_test(is_driver)
+@user_passes_test(is_driver) 
 def end_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
-    trip.status = 'ended'
-    trip.simulation_active = False
-    trip.end_time = timezone.now()
-    trip.save()
-    return JsonResponse({"status": "success", "message": "Trip ended and simulation stopped."})
+    try:
+        trip = get_object_or_404(Trip, id=trip_id)
+        trip.status = 'ended'
+        trip.simulation_active = False
+        trip.end_time = timezone.now()
+        trip.save()
+        messages.success(request, f"Trip {trip.id} ended successfully.")
+        return redirect('driver_home')
+    except Exception as e:
+        messages.error(request, f"Failed to end trip: {str(e)}")
+        return redirect('driver_home')
+
+
 @login_required
 @user_passes_test(is_fleet_manager)
 def edit_trip(request, trip_id):
@@ -445,30 +457,48 @@ def delete_trip(request, trip_id):
 @login_required
 @user_passes_test(is_driver)
 def pause_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
-    # Capture the current coordinates
-    current_latitude = request.GET.get('latitude')
-    current_longitude = request.GET.get('longitude')
-    if current_latitude and current_longitude:
-        trip.last_latitude = float(current_latitude)
-        trip.last_longitude = float(current_longitude)
-    trip.status = 'paused'
-    trip.save()
-    return JsonResponse({"status": "success", "message": "Trip paused."})
+    try:
+        trip = get_object_or_404(Trip, id=trip_id)
+        current_latitude = request.GET.get('latitude')
+        current_longitude = request.GET.get('longitude')
+        
+        if current_latitude and current_longitude:
+            trip.last_latitude = float(current_latitude)
+            trip.last_longitude = float(current_longitude)
+            
+        trip.status = 'paused'
+        trip.save()
+        messages.success(request, f"Trip {trip.id} paused successfully.")
+        return redirect('driver_home')
+        
+    except ValueError:
+        messages.error(request, "Invalid coordinates provided")
+        return redirect('driver_home')
+    except Exception as e:
+        messages.error(request, f"Failed to pause trip: {str(e)}")
+        return redirect('driver_home')
 
 
 @login_required
 @user_passes_test(is_driver)
 def resume_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
-    trip.status = 'resumed'
-    trip.end_time = timezone.now()
-    trip.save()
+    try:
+        trip = get_object_or_404(Trip, id=trip_id)
+        trip.status = 'resumed'
+        trip.simulation_active = True  # Reactivate simulation
+        trip.save()
 
-    # Trigger the GPS simulation in a separate thread
-    threading.Thread(target=call_command, args=('simulate_gps_command',), kwargs={'trip_id': trip.id}).start()
+        # Trigger the GPS simulation in a separate thread
+        threading.Thread(target=call_command, 
+                       args=('simulate_gps_command', 
+                             str(trip.truck.id), 
+                             trip.route.gpx_file.path)).start()
 
-    return JsonResponse({"status": "success", "message": "Trip resumed and GPS simulation initiated."})
+        messages.success(request, f"Trip {trip.id} resumed successfully.")
+        return redirect('driver_home')
+    except Exception as e:
+        messages.error(request, f"Failed to resume trip: {str(e)}")
+        return redirect('driver_home')
 
 
 
@@ -526,3 +556,15 @@ def previous_trips(request):
 def trip_details(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     return render(request, 'trip_details.html', {'trip': trip})
+
+@login_required
+@user_passes_test(is_driver)
+def get_trip_updates(request):
+    driver = request.user.driver
+    context = {
+        'current_trip': Trip.objects.filter(driver=driver, status='started').first(),
+        'pending_trips': Trip.objects.filter(driver=driver, status='pending'),
+        'paused_trips': Trip.objects.filter(driver=driver, status='paused'),
+        'resumed_trips': Trip.objects.filter(driver=driver, status='resumed')
+    }
+    return render(request, 'trip_updates.html', context)

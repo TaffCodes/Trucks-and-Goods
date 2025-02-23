@@ -1,0 +1,114 @@
+<!-- Current Trip -->
+<div class="trip-card">
+    <div class="card-header">
+        <h2>Current Trip</h2>
+    </div>
+    <div class="trip-list">
+        {% if current_trip %}
+        <div class="trip-item">
+            <p><strong>Route:</strong> {{ current_trip.route.start_location }} ➝ {{ current_trip.route.end_location }}</p>
+            <p><strong>Status:</strong> {{ current_trip.status }}</p>
+            <p><strong>Start Time:</strong> {{ current_trip.start_time }}</p>
+            <a href="{% url 'pause_trip' current_trip.id %}" class="btn">Pause Trip</a>
+            <a href="{% url 'end_trip' current_trip.id %}" class="btn">End Trip</a>
+        </div>
+        {% else %}
+        <p>No current trip.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pending Trips Card -->
+<div class="trip-card">
+    <div class="card-header">
+        <h2>Pending Trips</h2>
+    </div>
+    <div class="trip-list">
+        {% for trip in pending_trips %}
+        <div class="trip-item">
+            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+            <p><strong>Status:</strong> {{ trip.status }}</p>
+            <a href="{% url 'start_trip' trip.id %}" class="btn">Start Trip</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Paused Trips Card -->
+<div class="trip-card">
+    <div class="card-header">
+        <h2>Paused Trips</h2>
+    </div>
+    <div class="trip-list">
+        {% for trip in paused_trips %}
+        <div class="trip-item">
+            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+            <p><strong>Status:</strong> {{ trip.status }}</p>
+            <a href="{% url 'resume_trip' trip.id %}" class="btn">Resume Trip</a>
+            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Resumed Trips Card -->
+<div class="trip-card">
+    <div class="card-header">
+        <h2>Resumed Trips</h2>
+    </div>
+    <div class="trip-list">
+        {% for trip in resumed_trips %}
+        <div class="trip-item">
+            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
+            <p><strong>Status:</strong> {{ trip.status }}</p>
+            <a href="{% url 'pause_trip' trip.id %}" class="btn">Pause Trip</a>
+            <a href="{% url 'end_trip' trip.id %}" class="btn">End Trip</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+function updateTrips() {
+    fetch('{% url "get_trip_updates" %}')
+        .then(response => response.text())
+        .then(html => {
+            const tripsContainer = document.querySelector('.trips-container');
+            tripsContainer.innerHTML = html;
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Handle trip actions with AJAX
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.btn') && !e.target.matches('.logout-btn')) {
+        e.preventDefault();
+        fetch(e.target.href)
+            .then(response => response.json())  // Expect JSON response
+            .then(data => {
+                // Show message
+                const messagesContainer = document.querySelector('.messages') || createMessagesContainer();
+                const messageElement = document.createElement('div');
+                messageElement.className = `alert alert-${data.status}`;
+                messageElement.textContent = data.message;
+                messagesContainer.appendChild(messageElement);
+
+                // Remove message after 5 seconds
+                setTimeout(() => messageElement.remove(), 5000);
+
+                // Update trips
+                updateTrips();
+            })
+            .catch(error => console.error('Error:', error));
+    }
+});
+
+function createMessagesContainer() {
+    const container = document.createElement('div');
+    container.className = 'messages';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Update trips every 5 seconds
+setInterval(updateTrips, 5000);
+</script>

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
-from .views import TruckViewSet, DriverViewSet, TripViewSet, trip_details, driver_home, previous_trips, landing, signup, login_view, home, logout_view, truck_management, truck_detail, driver_management, add_driver, edit_driver, delete_driver, view_driver, add_truck, edit_truck, delete_truck, view_truck, route_management, add_route, edit_route, delete_route, view_route, update_truck_location, track_location, get_truck_location, trip_management, add_trip, start_trip, edit_trip, delete_trip, pause_trip, end_trip, resume_trip, visualize_trucks, get_truck_locations
+from .views import TruckViewSet, DriverViewSet, TripViewSet, trip_details, get_trip_updates, driver_home, previous_trips, landing, signup, login_view, home, logout_view, truck_management, truck_detail, driver_management, add_driver, edit_driver, delete_driver, view_driver, add_truck, edit_truck, delete_truck, view_truck, route_management, add_route, edit_route, delete_route, view_route, update_truck_location, track_location, get_truck_location, trip_management, add_trip, start_trip, edit_trip, delete_trip, pause_trip, end_trip, resume_trip, visualize_trucks, get_truck_locations
 
 router = DefaultRouter()
 router.register(r'trucks', TruckViewSet)
@@ -47,6 +47,6 @@ urlpatterns = [
     path('get_truck_locations/', get_truck_locations, name='get_truck_locations'),
     path('previous_trips/', previous_trips, name='previous_trips'),
     path('trip/details/<str:trip_id>/', trip_details, name='trip_details'),
-
+    path('get_trip_updates/', get_trip_updates, name='get_trip_updates'),
 
 ]
