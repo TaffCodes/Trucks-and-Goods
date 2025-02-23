@@ -43,6 +43,38 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            animation: fadeOut 5s forwards;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 0.9; }
+            70% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -54,6 +86,15 @@
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
+        <div id="messages-container" class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
     </header>
     <main>
         <div class="form-container">
@@ -80,5 +121,43 @@
             </form>
         </div>
     </main>
+    <script>
+        // Handle alerts immediately when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.alert');
+            
+            messages.forEach(function(message) {
+                // Add fade out after 4 seconds
+                setTimeout(() => {
+                    message.classList.add('fade-out');
+                }, 4000);
+                
+                // Remove element after fade out (5 seconds total)
+                setTimeout(() => {
+                    message.remove();
+                }, 5000);
+            });
+        });
+
+        // Handle new alerts that might be added dynamically
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.classList && node.classList.contains('alert')) {
+                        setTimeout(() => {
+                            node.classList.add('fade-out');
+                        }, 4000);
+                        setTimeout(() => {
+                            node.remove();
+                        }, 5000);
+                    }
+                });
+            });
+        });
+
+        observer.observe(document.getElementById('messages-container'), {
+            childList: true
+        });
+    </script>
 </body>
 </html>

@@ -38,6 +38,39 @@
             margin: 0 auto;
             padding: 20px;
         }
+        
+        .messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +83,15 @@
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
+        <div id="messages-container" class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
     </header>
     <div class="container">
         <h1>Route Management</h1>
@@ -83,5 +125,38 @@
             </tbody>
         </table>
     </div>
+    <script>
+        function handleAlerts() {
+            const messages = document.querySelectorAll('.alert');
+            
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.classList.add('fade-out');
+                    setTimeout(() => message.remove(), 500);
+                }, 4000);
+            });
+        }
+
+        // Handle initial alerts
+        document.addEventListener('DOMContentLoaded', handleAlerts);
+
+        // Handle dynamically added alerts
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.classList && node.classList.contains('alert')) {
+                        setTimeout(() => {
+                            node.classList.add('fade-out');
+                            setTimeout(() => node.remove(), 500);
+                        }, 4000);
+                    }
+                });
+            });
+        });
+
+        observer.observe(document.getElementById('messages-container'), {
+            childList: true
+        });
+    </script>
 </body>
 </html>

@@ -148,6 +148,7 @@ def add_driver(request):
         form = DriverForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Driver added successfully")
             return redirect('driver_management')
     else:
         form = DriverForm()
@@ -161,6 +162,7 @@ def edit_driver(request, driver_id):
         form = DriverForm(request.POST, instance=driver)
         if form.is_valid():
             form.save()
+            messages.success(request, f"Driver {driver_id} - {driver.name} updated successfully")
             return redirect('driver_management')
     else:
         form = DriverForm(instance=driver)
@@ -172,10 +174,52 @@ def delete_driver(request, driver_id):
     driver = get_object_or_404(Driver, id=driver_id)
     if request.method == 'POST':
         driver.delete()
+        messages.success(request, f"Driver {driver_id} - {driver.name} deleted successfully")
         return redirect('driver_management')
     return render(request, 'delete_driver.html', {'driver': driver})
 
 
+# @login_required
+# @user_passes_test(is_fleet_manager)
+# def add_truck(request):
+#     if request.method == 'POST':
+#         form = TruckForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('truck_management')
+#     else:
+#         form = TruckForm()
+#     return render(request, 'add_truck.html', {'form': form})
+
+# @login_required
+# @user_passes_test(is_fleet_manager)
+# def edit_truck(request, truck_id):
+#     truck = get_object_or_404(Truck, id=truck_id)
+#     if request.method == 'POST':
+#         form = TruckForm(request.POST, instance=truck)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('truck_management')
+#     else:
+#         form = TruckForm(instance=truck)
+#     return render(request, 'edit_truck.html', {'form': form, 'truck': truck})
+
+# @login_required
+# @user_passes_test(is_fleet_manager)
+# def delete_truck(request, truck_id):
+#     truck = get_object_or_404(Truck, id=truck_id)
+#     if request.method == 'POST':
+#         truck.delete()
+#         return redirect('truck_management')
+#     return render(request, 'delete_truck.html', {'truck': truck})
+
+# @login_required
+# @user_passes_test(is_fleet_manager)
+# def view_truck(request, truck_id):
+#     truck = get_object_or_404(Truck, id=truck_id)
+#     return render(request, 'view_truck.html', {'truck': truck})
+
+
 @login_required
 @user_passes_test(is_fleet_manager)
 def add_truck(request):
@@ -183,6 +227,7 @@ def add_truck(request):
         form = TruckForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Truck added successfully")
             return redirect('truck_management')
     else:
         form = TruckForm()
@@ -196,6 +241,7 @@ def edit_truck(request, truck_id):
         form = TruckForm(request.POST, instance=truck)
         if form.is_valid():
             form.save()
+            messages.success(request, f"Truck {truck.id} - {truck.number_plate} updated successfully")
             return redirect('truck_management')
     else:
         form = TruckForm(instance=truck)
@@ -207,47 +253,7 @@ def delete_truck(request, truck_id):
     truck = get_object_or_404(Truck, id=truck_id)
     if request.method == 'POST':
         truck.delete()
-        return redirect('truck_management')
-    return render(request, 'delete_truck.html', {'truck': truck})
-
-@login_required
-@user_passes_test(is_fleet_manager)
-def view_truck(request, truck_id):
-    truck = get_object_or_404(Truck, id=truck_id)
-    return render(request, 'view_truck.html', {'truck': truck})
-
-
-@login_required
-@user_passes_test(is_fleet_manager)
-def add_truck(request):
-    if request.method == 'POST':
-        form = TruckForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('truck_management')
-    else:
-        form = TruckForm()
-    return render(request, 'add_truck.html', {'form': form})
-
-@login_required
-@user_passes_test(is_fleet_manager)
-def edit_truck(request, truck_id):
-    truck = get_object_or_404(Truck, id=truck_id)
-    if request.method == 'POST':
-        form = TruckForm(request.POST, instance=truck)
-        if form.is_valid():
-            form.save()
-            return redirect('truck_management')
-    else:
-        form = TruckForm(instance=truck)
-    return render(request, 'edit_truck.html', {'form': form, 'truck': truck})
-
-@login_required
-@user_passes_test(is_fleet_manager)
-def delete_truck(request, truck_id):
-    truck = get_object_or_404(Truck, id=truck_id)
-    if request.method == 'POST':
-        truck.delete()
+        messages.success(request, f"Truck {truck_id} - {truck.number_plate} deleted successfully")
         return redirect('truck_management')
     return render(request, 'delete_truck.html', {'truck': truck})
 
@@ -263,17 +269,6 @@ def route_management(request):
     routes = Route.objects.all()
     return render(request, 'route_management.html', {'routes': routes})
 
-@login_required
-@user_passes_test(is_fleet_manager)
-def add_route(request):
-    if request.method == 'POST':
-        form = RouteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('route_management')
-    else:
-        form = RouteForm()
-    return render(request, 'add_route.html', {'form': form})
 
 @login_required
 @user_passes_test(is_fleet_manager)
@@ -283,6 +278,7 @@ def edit_route(request, route_id):
         form = RouteForm(request.POST, instance=route)
         if form.is_valid():
             form.save()
+            messages.success(request, f"Route {route.id} - {route.start_location} ➝ {route.end_location} updated successfully")
             return redirect('route_management')
     else:
         form = RouteForm(instance=route)
@@ -294,6 +290,7 @@ def delete_route(request, route_id):
     route = get_object_or_404(Route, id=route_id)
     if request.method == 'POST':
         route.delete()
+        messages.success(request, f"Route {route_id} - {route.start_location} ➝ {route.end_location} deleted successfully")
         return redirect('route_management')
     return render(request, 'delete_route.html', {'route': route})
 
@@ -360,6 +357,7 @@ def add_trip(request):
         form = TripForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Trip added successfully")
             return redirect('trip_management')
     else:
         form = TripForm()
@@ -378,10 +376,25 @@ def add_route(request):
     if request.method == 'POST':
         form = RouteForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            route = form.save()
+            # Clear any existing messages
+            storage = messages.get_messages(request)
+            storage.used = True
+            # Add new success message
+            messages.success(request, f"Route from {route.start_location} to {route.end_location} added successfully")
             return redirect('route_management')
+        else:
+            # Clear any existing messages
+            storage = messages.get_messages(request)
+            storage.used = True
+            # Add new error message
+            messages.error(request, "Failed to add route. Check the form for errors.")
     else:
         form = RouteForm()
+        # Clear messages when loading form
+        storage = messages.get_messages(request)
+        storage.used = True
+        
     return render(request, 'add_route.html', {'form': form})
 
 @login_required
@@ -439,6 +452,7 @@ def edit_trip(request, trip_id):
         form = TripForm(request.POST, instance=trip)
         if form.is_valid():
             form.save()
+            messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} updated successfully")
             return redirect('trip_management')
     else:
         form = TripForm(instance=trip)
@@ -450,6 +464,7 @@ def delete_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     if request.method == 'POST':
         trip.delete()
+        messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} deleted successfully")
         return redirect('trip_management')
     return render(request, 'delete_trip.html', {'trip': trip})
 
@@ -468,7 +483,7 @@ def pause_trip(request, trip_id):
             
         trip.status = 'paused'
         trip.save()
-        messages.success(request, f"Trip {trip.id} paused successfully.")
+        messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} paused successfully")
         return redirect('driver_home')
         
     except ValueError:
@@ -494,7 +509,7 @@ def resume_trip(request, trip_id):
                              str(trip.truck.id), 
                              trip.route.gpx_file.path)).start()
 
-        messages.success(request, f"Trip {trip.id} resumed successfully.")
+        messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} resumed successfully")
         return redirect('driver_home')
     except Exception as e:
         messages.error(request, f"Failed to resume trip: {str(e)}")

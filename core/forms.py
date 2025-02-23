@@ -52,26 +52,26 @@ class DriverForm(forms.ModelForm):
             'placeholder': 'Enter phone number'
         })
     )
-    assigned_truck = TruckChoiceField(
-        queryset=Truck.objects.filter(
-            status='available'
-        ).filter(
-            Q(driver__isnull=True)
-        ),
-        empty_label="Select a Truck",
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        })
-    )
+    # assigned_truck = TruckChoiceField(
+    #     queryset=Truck.objects.filter(
+    #         status='available'
+    #     ).filter(
+    #         Q(driver__isnull=True)
+    #     ),
+    #     empty_label="Select a Truck",
+    #     required=False,
+    #     widget=forms.Select(attrs={
+    #         'class': 'form-control'
+    #     })
+    # )
 
     class Meta:
         model = Driver
-        fields = ['user', 'phone', 'assigned_truck']
+        fields = ['user', 'phone']
         labels = {
             'user': 'Driver',
             'phone': 'Phone Number',
-            'assigned_truck': 'Assign Truck (Optional)'
+            # 'assigned_truck': 'Assign Truck (Optional)'
         }
 
 

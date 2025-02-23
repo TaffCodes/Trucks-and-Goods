@@ -135,7 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+gpx_files/
 # Spyder project settings
 .spyderproject
 .spyproject
