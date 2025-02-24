@@ -104,7 +104,8 @@ class Trip(models.Model):
     last_longitude = models.FloatField(null=True, blank=True)
     last_latitude = models.FloatField(null=True, blank=True)
     simulation_active = models.BooleanField(default=False)
-    
+    pause_reason_rest = models.BooleanField(default=False)
+    pause_reason_mechanical = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.id:

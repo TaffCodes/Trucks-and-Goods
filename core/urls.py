@@ -50,4 +50,5 @@ urlpatterns = [
     path('get_trip_updates/', get_trip_updates, name='get_trip_updates'),
     path('mark_notification_as_read/<int:notification_id>/', mark_notification_as_read, name='mark_notification_as_read'),
 
+
 ]

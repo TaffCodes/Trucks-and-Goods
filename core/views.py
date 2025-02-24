@@ -491,18 +491,28 @@ def delete_trip(request, trip_id):
 def pause_trip(request, trip_id):
     try:
         trip = get_object_or_404(Trip, id=trip_id)
-        current_latitude = request.GET.get('latitude')
-        current_longitude = request.GET.get('longitude')
-        
-        if current_latitude and current_longitude:
-            trip.last_latitude = float(current_latitude)
-            trip.last_longitude = float(current_longitude)
+        if request.method == 'POST':
+            current_latitude = request.POST.get('latitude')
+            current_longitude = request.POST.get('longitude')
+            pause_reason_rest = request.POST.get('pause_reason_rest') == 'true'
+            pause_reason_mechanical = request.POST.get('pause_reason_mechanical') == 'true'
             
-        trip.status = 'paused'
-        trip.save()
-        messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} paused successfully")
-        return redirect('driver_home')
-        
+            if current_latitude and current_longitude:
+                trip.last_latitude = float(current_latitude)
+                trip.last_longitude = float(current_longitude)
+            
+            trip.status = 'paused'
+            trip.pause_reason_rest = pause_reason_rest
+            trip.pause_reason_mechanical = pause_reason_mechanical
+            trip.save()
+            messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} paused successfully")
+            return redirect('driver_home')
+        else:
+            return render(request, 'pause_trip.html', {
+                'trip': trip,
+                'last_latitude': trip.last_latitude,
+                'last_longitude': trip.last_longitude
+            })
     except ValueError:
         messages.error(request, "Invalid coordinates provided")
         return redirect('driver_home')

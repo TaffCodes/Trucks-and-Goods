@@ -1,0 +1,30 @@
+<!-- filepath: /c:/Users/jeff/Documents/codeoncode/Truck Management System/Trucks-and-Goods/core/templates/pause_trip.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pause Trip</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Pause Trip</h1>
+    </header>
+    <main>
+        <form method="post" action="{% url 'pause_trip' trip.id %}">
+            {% csrf_token %}
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="latitude" value="{{ last_latitude }}" required>
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" value="{{ last_longitude }}" required>
+            <label for="pause_reason_rest">Taking a Rest:</label>
+            <input type="checkbox" id="pause_reason_rest" name="pause_reason_rest" value="true">
+            <label for="pause_reason_mechanical">Mechanical Failure:</label>
+            <input type="checkbox" id="pause_reason_mechanical" name="pause_reason_mechanical" value="true">
+            <button type="submit">Pause Trip</button>
+        </form>
+    </main>
+</body>
+</html>
