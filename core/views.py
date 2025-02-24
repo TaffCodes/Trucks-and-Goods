@@ -362,7 +362,7 @@ def add_trip(request):
             trip = form.save()
             Notification.objects.create(
                 user=trip.driver.user,
-                message=f"You have a NEW trip {trip.id} from {trip.route.start_location} to {trip.route.end_location}. {trip.route.distance_km} KM."
+                message=f"You have a NEW trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} with {trip.truck.number_plate}. Distance: {trip.route.distance_km} KM."
             )
             messages.success(request, "Trip  added successfully")
             return redirect('trip_management')
@@ -425,7 +425,10 @@ def start_trip(request, trip_id):
         trip.simulation_active = True
         trip.start_time = timezone.now()
         trip.save()
-        
+        Notification.objects.create(
+            user=trip.driver.user,
+            message=f"You have STARTED your trip {trip.id} with {trip.truck.number_plate}."
+        )
         threading.Thread(target=call_command, 
                         args=('simulate_gps_command', 
                               str(trip.truck.id), 
@@ -446,6 +449,10 @@ def end_trip(request, trip_id):
         trip.simulation_active = False
         trip.end_time = timezone.now()
         trip.save()
+        Notification.objects.create(
+            user=trip.driver.user,
+            message=f"You have ENDED your trip {trip.id} with {trip.truck.number_plate}."
+        )
         messages.success(request, f"Trip {trip.id} ended successfully.")
         return redirect('driver_home')
     except Exception as e:
@@ -505,13 +512,19 @@ def pause_trip(request, trip_id):
             trip.pause_reason_rest = pause_reason_rest
             trip.pause_reason_mechanical = pause_reason_mechanical
             trip.save()
+            Notification.objects.create(
+                user=trip.driver.user,
+                message=f"You have PAUSED your trip {trip.id} from {trip.route.start_location} to {trip.route.end_location}."
+            )
             messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} paused successfully")
             return redirect('driver_home')
         else:
+            last_latitude = trip.last_latitude if trip.last_latitude is not None else ''
+            last_longitude = trip.last_longitude if trip.last_longitude is not None else ''
             return render(request, 'pause_trip.html', {
                 'trip': trip,
-                'last_latitude': trip.last_latitude,
-                'last_longitude': trip.last_longitude
+                'last_latitude': last_latitude,
+                'last_longitude': last_longitude
             })
     except ValueError:
         messages.error(request, "Invalid coordinates provided")
@@ -519,6 +532,8 @@ def pause_trip(request, trip_id):
     except Exception as e:
         messages.error(request, f"Failed to pause trip: {str(e)}")
         return redirect('driver_home')
+
+
 
 
 @login_required
@@ -529,6 +544,10 @@ def resume_trip(request, trip_id):
         trip.status = 'resumed'
         trip.simulation_active = True  # Reactivate simulation
         trip.save()
+        Notification.objects.create(
+            user=trip.driver.user,
+            message=f"You have RESUMED your trip {trip.id} from {trip.route.start_location} to {trip.route.end_location}."
+        )
 
         # Trigger the GPS simulation in a separate thread
         threading.Thread(target=call_command, 
