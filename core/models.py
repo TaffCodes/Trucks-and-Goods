@@ -38,6 +38,9 @@ class Truck(models.Model):
         if not self.id:
             self.id = generate_unique_id('V')
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f" {self.id} - {self.number_plate} ({self.model})"
 
 class Driver(models.Model):
     id = models.CharField(max_length=6, primary_key=True, editable=False, unique=True)
@@ -45,6 +48,9 @@ class Driver(models.Model):
     name = models.CharField(max_length=30, default="", editable=True)
     phone = models.CharField(max_length=15)
     assigned_truck = models.OneToOneField(Truck, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f" {self.id} - {self.user.get_full_name()}"
 
     def save(self, *args, **kwargs):
         if not self.id:
