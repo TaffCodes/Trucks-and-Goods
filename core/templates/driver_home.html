@@ -14,6 +14,7 @@
             color: #333;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         header {
@@ -84,11 +85,13 @@
 
         .main-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-between;
             max-width: 100%;
             margin: 0 auto;
             padding: 20px;
             height: 90vh;
+            overflow: hidden;
         }
 
         .left-container {
@@ -98,7 +101,8 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin-right: 2%;
+            overflow-y: auto;
         }
 
         .right-container {
@@ -108,7 +112,7 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            overflow-y: auto;
         }
 
         .right-container .card {
@@ -185,11 +189,66 @@
             70% { opacity: 0.9; }
             100% { opacity: 0; }
         }
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notification-item {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .notification-item:hover {
+            transform: scale(1.02);
+        }
+
+        .notification-item p {
+            margin: 0 0 5px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .notification-item small {
+            display: block;
+            font-size: 12px;
+            color: #666;
+        }
+        .unread-counter {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-size: 14px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .mark-read-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .mark-read-btn:hover {
+            background-color: #0056b3;
+        }          
     </style>
 </head>
 <body>
     <header>
         <h1>Driver Home</h1>
+        <p>You are logged in as {{user.username}}</p>
+        <!-- <div class="unread-counter" id="unread-counter"></div> -->
     </header>
     <nav>
         <ul>
@@ -264,12 +323,22 @@
             </div>
             <div class="right-container">
                 <div class="card">
-                    <h2>Truck Locations</h2>
-                    <div id="map"></div>
+                    <h2>Notifications</h2>
+                    <ul class="notification-list" id="notification-list">
+                        {% for notification in notifications %}
+                        <li class="notification-item" data-id="{{ notification.id }}">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.timestamp }}</small>
+                            <!-- <button class="mark-read-btn" onclick="markAsRead(notification.id)">Mark as Read</button> -->
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
+    <audio id="notification-sound" src="{% static 'notification.mp3' %}" preload="auto"></audio>
+
     <script>
         function refreshPage() {
             fetch(window.location.href)
@@ -284,19 +353,63 @@
                     if (newLeft && currentLeft) {
                         currentLeft.innerHTML = newLeft.innerHTML;
                     }
-                    
-                    // Update messages
-                    const newMessages = newDoc.querySelector('#messages-container');
-                    const currentMessages = document.querySelector('#messages-container');
-                    if (newMessages && currentMessages) {
-                        currentMessages.innerHTML = newMessages.innerHTML;
+
+                    const newRight = newDoc.querySelector('.right-container');
+                    const currentRight = document.querySelector('.right-container');
+                    if (newRight && currentRight) {
+                        currentRight.innerHTML = newRight.innerHTML;
                     }
+                    
+                    // Update notifications
+                    const newNotifications = newDoc.querySelectorAll('.notification-item');
+                    const currentNotifications = document.querySelectorAll('.notification-item');
+                    const notificationList = document.getElementById('notification-list');
+                    const unreadCounter = document.getElementById('unread-counter');
+                    let unreadCount = 0;
+    
+                    newNotifications.forEach(newNotification => {
+                        const newId = newNotification.getAttribute('data-id');
+                        let exists = false;
+                        currentNotifications.forEach(currentNotification => {
+                            const currentId = currentNotification.getAttribute('data-id');
+                            if (newId === currentId) {
+                                exists = true;
+                            }
+                        });
+                        if (!exists) {
+                            notificationList.appendChild(newNotification);
+                            document.getElementById('notification-sound').play();
+                            unreadCount++;
+                        }
+                    });
+    
+                    unreadCounter.textContent = unreadCount;
                 })
                 .catch(error => console.error('Error:', error));
         }
     
+
+        function markAsRead(notificationId) {
+            fetch(`/mark_notification_as_read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+                    if (notificationItem) {
+                        notificationItem.remove();
+                        const unreadCounter = document.getElementById('unread-counter');
+                        unreadCounter.textContent = parseInt(unreadCounter.textContent) - 1;
+                    }
+                }
+            }).catch(error => console.error('Error:', error));
+        }
+    
         // Refresh every 10 seconds
-        setInterval(refreshPage, 10000);
+        setInterval(refreshPage, 5000);
     </script>
 </body>
 </html>

@@ -104,6 +104,7 @@ class Trip(models.Model):
     last_longitude = models.FloatField(null=True, blank=True)
     last_latitude = models.FloatField(null=True, blank=True)
     simulation_active = models.BooleanField(default=False)
+    
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -138,3 +139,12 @@ class Trip(models.Model):
                 self.truck.save()
         
         super().delete(*args, **kwargs)
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username} at {self.timestamp}"

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
-from .models import Truck, Driver, Trip, Route
+from .models import Truck, Driver, Trip, Route, Notification
 from .serializers import TruckSerializer, DriverSerializer, TripSerializer
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
@@ -13,6 +13,7 @@ import threading
 from django.http import JsonResponse
 import gpxpy
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -120,13 +121,15 @@ def driver_home(request):
     paused_trips = Trip.objects.filter(driver=driver, status='paused')
     resumed_trips = Trip.objects.filter(driver=driver, status='resumed')
     current_trip = Trip.objects.filter(driver=driver, status='started').first()
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'driver_home.html', {
         'driver': driver,
         'pending_trips': pending_trips,
         'started_trips': started_trips,
         'paused_trips': paused_trips,
         'resumed_trips': resumed_trips,
-        'current_trip': current_trip
+        'current_trip': current_trip,
+        'notifications': notifications
     })
 
 @login_required
@@ -356,12 +359,18 @@ def add_trip(request):
     if request.method == 'POST':
         form = TripForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Trip added successfully")
+            trip = form.save()
+            Notification.objects.create(
+                user=trip.driver.user,
+                message=f"You have a NEW trip {trip.id} from {trip.route.start_location} to {trip.route.end_location}. {trip.route.distance_km} KM."
+            )
+            messages.success(request, "Trip  added successfully")
             return redirect('trip_management')
     else:
         form = TripForm()
     return render(request, 'add_trip.html', {'form': form})
+
+
 
 @login_required
 @user_passes_test(is_fleet_manager)
@@ -452,6 +461,10 @@ def edit_trip(request, trip_id):
         form = TripForm(request.POST, instance=trip)
         if form.is_valid():
             form.save()
+            Notification.objects.create(
+                user=trip.driver.user,
+                message=f"Your trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} has been updated."
+            )
             messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} updated successfully")
             return redirect('trip_management')
     else:
@@ -464,7 +477,11 @@ def delete_trip(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     if request.method == 'POST':
         trip.delete()
-        messages.success(request, f"Trip {trip.id} from {trip.route.start_location} to {trip.route.end_location} deleted successfully")
+        Notification.objects.create(
+            user=trip.driver.user,
+            message=f"Your trip {trip_id} from {trip.route.start_location} to {trip.route.end_location} has been cancelled."
+        )
+        messages.success(request, f"Trip {trip_id} from {trip.route.start_location} to {trip.route.end_location} deleted successfully")
         return redirect('trip_management')
     return render(request, 'delete_trip.html', {'trip': trip})
 
@@ -583,3 +600,14 @@ def get_trip_updates(request):
         'resumed_trips': Trip.objects.filter(driver=driver, status='resumed')
     }
     return render(request, 'trip_updates.html', context)
+
+
+@csrf_exempt
+@login_required
+def mark_notification_as_read(request, notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.delete()
+        return JsonResponse({'status': 'success'})
+    except Notification.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
