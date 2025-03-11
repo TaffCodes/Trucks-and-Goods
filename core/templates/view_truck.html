@@ -1,19 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>View Truck</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h1>Truck Details</h1>
-        <p><strong>ID:</strong> {{ truck.id }}</p>
-        <p><strong>Number Plate:</strong> {{ truck.number_plate }}</p>
-        <p><strong>Model:</strong> {{ truck.model }}</p>
-        <p><strong>Capacity:</strong> {{ truck.capacity }}</p>
-        <p><strong>Status:</strong> {{ truck.status }}</p>
-        <a href="{% url 'truck_management' %}" class="btn">Back</a>
+<!-- view_truck.html -->
+{% extends 'base_fleetmanager.html' %}
+{% load static %}
+
+{% block title %}Truck Details - Truck Manager{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Truck Details</h3>
+            <a href="{% url 'truck_management' %}" class="btn btn-brand-outline">
+                <i class="material-icons">arrow_back</i>
+                Back to Trucks
+            </a>
+        </div>
     </div>
-</body>
-</html>
+    
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 brand-color">ID:</dt>
+            <dd class="col-sm-9">{{ truck.id }}</dd>
+            
+            <dt class="col-sm-3 brand-color">Number Plate:</dt>
+            <dd class="col-sm-9">{{ truck.number_plate }}</dd>
+            
+            <dt class="col-sm-3 brand-color">Model:</dt>
+            <dd class="col-sm-9">{{ truck.model }}</dd>
+            
+            <dt class="col-sm-3 brand-color">Capacity:</dt>
+            <dd class="col-sm-9">{{ truck.capacity }}</dd>
+            
+            <dt class="col-sm-3 brand-color">Status:</dt>
+            <dd class="col-sm-9">
+                <span class="badge {% if truck.status == 'Active' %}brand-bg{% else %}bg-secondary{% endif %}">
+                    {{ truck.status }}
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}

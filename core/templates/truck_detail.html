@@ -1,26 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Truck Detail</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <h1>Truck Detail</h1>
-        <p><strong>ID:</strong> {{ truck.id }}</p>
-        <p><strong>Model:</strong> {{ truck.model }}</p>
-        <p><strong>Number Plate:</strong> {{ truck.number_plate }}</p>
-    </main>
-</body>
-</html>
+{% extends 'base_fleetmanager.html' %}
+{% load static %}
+
+{% block title %}Truck Details - Truck Manager{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Truck Details</h3>
+            <a href="{% url 'truck_management' %}" class="btn btn-brand-outline">
+                <i class="material-icons">arrow_back</i>
+                Back to Trucks
+            </a>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 brand-color">ID:</dt>
+            <dd class="col-sm-9">{{ truck.id }}</dd>
+
+            <dt class="col-sm-3 brand-color">Model:</dt>
+            <dd class="col-sm-9">{{ truck.model }}</dd>
+
+            <dt class="col-sm-3 brand-color">Number Plate:</dt>
+            <dd class="col-sm-9">{{ truck.number_plate }}</dd>
+
+            <dt class="col-sm-3 brand-color">Capacity:</dt>
+            <dd class="col-sm-9">{{ truck.capacity }}</dd>
+
+            <dt class="col-sm-3 brand-color">Status:</dt>
+            <dd class="col-sm-9">
+                <span class="badge {% if truck.status == 'Active' %}brand-bg{% else %}bg-secondary{% endif %}">
+                    {{ truck.status }}
+                </span>
+            </dd>
+        </dl>
+        
+        <div class="mt-4">
+            <a href="{% url 'edit_truck' truck.id %}" class="btn btn-brand">
+                <i class="material-icons">edit</i>
+                Edit Truck
+            </a>
+            <a href="{% url 'delete_truck' truck.id %}" class="btn btn-danger">
+                <i class="material-icons">delete</i>
+                Delete Truck
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

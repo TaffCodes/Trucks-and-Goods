@@ -1,72 +1,47 @@
-view_driver.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Details</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        .detail-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .detail-item {
-            margin: 15px 0;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .label {
-            font-weight: bold;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'driver_management' %}">Back to Driver Management</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <div class="detail-container">
-            <h1>Driver Details</h1>
-            <div class="detail-item">
-                <span class="label">Driver ID:</span>
-                <span>{{ driver.id }}</span>
+{% extends 'base_fleetmanager.html' %}
+{% block title %}Driver Details | Truck Manager{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <h2 class="mb-0"><i class="material-icons align-middle">person</i> Driver Details</h2>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4 text-brand">Driver ID:</dt>
+                    <dd class="col-sm-8">{{ driver.id }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Full Name:</dt>
+                    <dd class="col-sm-8">{{ driver.user.get_full_name }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Username:</dt>
+                    <dd class="col-sm-8">{{ driver.user.username }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Phone:</dt>
+                    <dd class="col-sm-8">{{ driver.phone }}</dd>
+                </dl>
             </div>
-            <div class="detail-item">
-                <span class="label">Name:</span>
-                <span>{{ driver.user.get_full_name }}</span>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0 brand-color">Assigned Truck Details</h5>
+                    </div>
+                    
+                </div>
             </div>
-            <div class="detail-item">
-                <span class="label">Phone:</span>
-                <span>{{ driver.phone }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Assigned Truck:</span>
-                <span>{{ driver.assigned_truck.number_plate|default:"No truck assigned" }}</span>
-            </div>
-            {% if driver.assigned_truck %}
-            <div class="detail-item">
-                <span class="label">Truck ID:</span>
-                <span>{{ driver.assigned_truck.id }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Truck Model:</span>
-                <span>{{ driver.assigned_truck.model }}</span>
-            </div>
-            {% endif %}
         </div>
-    </main>
-</body>
-</html>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'edit_driver' driver.id %}" class="btn btn-brand">
+                <i class="material-icons align-middle">edit</i> Edit Driver
+            </a>
+            <a href="{% url 'delete_driver' driver.id %}" class="btn btn-brand-danger">
+                <i class="material-icons align-middle">delete</i> Delete Driver
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

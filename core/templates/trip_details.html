@@ -1,46 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trip Details</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .trip-details {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Trip Details</h1>
-        <div class="trip-details">
-            <p><strong>Trip ID:</strong> {{ trip.id }}</p>
-            <p><strong>Driver:</strong> {{ trip.driver.user.username }}</p>
-            <p><strong>Truck:</strong> {{ trip.truck.number_plate }}</p>
-            <p><strong>Route:</strong> {{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</p>
-            <p><strong>Status:</strong> {{ trip.status }}</p>
-            <p><strong>Pause Reason - Rest:</strong> {{ trip.pause_reason_rest }}</p>
-            <p><strong>Pause Reason - Mechanical:</strong> {{ trip.pause_reason_mechanical }}</p>
-            <p><strong>Start Time:</strong> {{ trip.start_time }}</p>
-            <p><strong>End Time:</strong> {{ trip.end_time }}</p>
-            <p><strong>Last Latitude:</strong> {{ trip.last_latitude }}</p>
-            <p><strong>Last Longitude:</strong> {{ trip.last_longitude }}</p>
+<!-- trip_details.html -->
+{% extends 'base_fleetmanager.html' %}
+{% load static %}
+
+{% block title %}Trip Details - Truck Manager{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Trip Details</h3>
+            <a href="{% url 'trip_management' %}" class="btn btn-brand-outline">
+                <i class="material-icons">arrow_back</i>
+                Back to Trips
+            </a>
         </div>
-        <a href="{% url 'trip_management' %}" class="btn">Back to Home</a>
     </div>
-</body>
-</html>
+    
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4 brand-color">Trip ID:</dt>
+                    <dd class="col-sm-8">{{ trip.id }}</dd>
+                    
+                    <dt class="col-sm-4 brand-color">Truck:</dt>
+                    <dd class="col-sm-8">{{ trip.truck.number_plate }}</dd>
+                    
+                    <dt class="col-sm-4 brand-color">Driver:</dt>
+                    <dd class="col-sm-8">{{ trip.driver.user.get_full_name }}</dd>
+                    
+                    <dt class="col-sm-4 brand-color">Route:</dt>
+                    <dd class="col-sm-8">{{ trip.route.start_location }} ➝ {{ trip.route.end_location }}</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4 brand-color">Status:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge {% if trip.status == 'Completed' %}bg-success{% else %}brand-bg{% endif %}">
+                            {{ trip.status }}
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-4 brand-color">Start Time:</dt>
+                    <dd class="col-sm-8">{{ trip.start_time }}</dd>
+                    
+                    <dt class="col-sm-4 brand-color">Estimated Duration:</dt>
+                    <dd class="col-sm-8">{{ trip.estimated_duration }} hours</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'edit_trip' trip.id %}" class="btn btn-brand">
+                <i class="material-icons">edit</i>
+                Edit Trip
+            </a>
+            <a href="{% url 'delete_trip' trip.id %}" class="btn btn-danger">
+                <i class="material-icons">delete</i>
+                Delete Trip
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,163 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Route</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        .form-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .messages {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 300px;
-        }
+<!-- add_route.html -->
+{% extends 'base_fleetmanager.html' %}
+{% load static %}
 
-        .alert {
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            animation: fadeOut 5s forwards;
-        }
+{% block title %}Add Route - Truck Manager{% endblock %}
 
-        .alert-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 0.9; }
-            70% { opacity: 0.9; }
-            100% { opacity: 0; }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'route_management' %}">Back to Route Management</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-        <div id="messages-container" class="messages">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Add New Route</h3>
+            <a href="{% url 'route_management' %}" class="btn btn-brand-outline">
+                <i class="material-icons">arrow_back</i>
+                Back to Routes
+            </a>
         </div>
-    </header>
-    <main>
-        <div class="form-container">
-            <h1>Add New Route</h1>
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="form-group">
-                        {{ field.label_tag }}
+    </div>
+    
+    <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label brand-color">
+                            {{ field.label }}
+                        </label>
+                        
                         {{ field }}
+                        
                         {% if field.help_text %}
-                            <small>{{ field.help_text }}</small>
+                        <div class="form-text text-muted">
+                            {{ field.help_text }}
+                        </div>
                         {% endif %}
+                        
                         {% if field.errors %}
-                            <div class="error">
-                                {% for error in field.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                        <div class="invalid-feedback d-block">
+                            {% for error in field.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                         {% endif %}
                     </div>
-                {% endfor %}
-                <button type="submit" class="btn">Add Route</button>
-            </form>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-brand btn-lg">
+                            <i class="material-icons">add_road</i>
+                            Add Route
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </main>
-    <script>
-        // Handle alerts immediately when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const messages = document.querySelectorAll('.alert');
-            
-            messages.forEach(function(message) {
-                // Add fade out after 4 seconds
-                setTimeout(() => {
-                    message.classList.add('fade-out');
-                }, 4000);
-                
-                // Remove element after fade out (5 seconds total)
-                setTimeout(() => {
-                    message.remove();
-                }, 5000);
-            });
-        });
-
-        // Handle new alerts that might be added dynamically
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.classList && node.classList.contains('alert')) {
-                        setTimeout(() => {
-                            node.classList.add('fade-out');
-                        }, 4000);
-                        setTimeout(() => {
-                            node.remove();
-                        }, 5000);
-                    }
-                });
-            });
-        });
-
-        observer.observe(document.getElementById('messages-container'), {
-            childList: true
-        });
-    </script>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}

@@ -1,120 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        .truck-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .truck-item {
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            flex: 1 1 calc(33.333% - 40px);
-            box-sizing: border-box;
-        }
-        .truck-item a {
-            text-decoration: none;
-            color: #333;
-        }
-        .truck-item a:hover {
-            color: #007bff;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 0;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
+<!-- HOME.html -->
+{% extends 'base_fleetmanager.html' %}
 
-        .btn-admin {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 0;
-            background-color: #008600;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .btn-admin:hover {
-            background-color: #005600;
-        }
+{% block title %}Dashboard - Truck Manager{% endblock %}
 
-        .btn-logout {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 0;
-            background-color: #f0bc11;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .btn-logout:hover {
-            background-color: #d1a00d;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-    
-        .status-available {
-            background-color: #28a745;
-            color: white;
-        }
-    
-        .status-unavailable {
-            background-color: #dc3545;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'admin:index' %}" class="btn-admin">Admin</a></li>
-                <li><a href="{% url 'truck_management' %}" class="btn">Truck Management</a></li>
-                <li><a href="{% url 'driver_management' %}" class="btn">Driver Management</a></li>
-                <li><a href="{% url 'trip_management' %}" class="btn">Trip Management</a></li>
-                <li><a href="{% url 'route_management' %}" class="btn">Route Management</a></li>
-                <li><a href="{% url 'logout' %}" class="btn-logout"> Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <h1>Welcome, {{ user.username }}</h1>
-        <h2>All Trucks</h2>
-        <div class="truck-list">
-            {% for truck in trucks %}
-             <div class="truck-item">
-                <a href="{% url 'truck_detail' truck.id %}">{{ truck.number_plate }}</a>
-                <div class="status-badge {% if truck.is_available %}status-available{% else %}status-unavailable{% endif %}">
-                    {% if truck.is_available %}
-                        Available
-                    {% else %}
-                        In Trip
-                    {% endif %}
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-header brand-bg text-white">
+            <h3 class="mb-0">Welcome, {{ user.username }}</h3>
+        </div>
+        <div class="card-body">
+            <h4 class="brand-color mb-4">Fleet Overview</h4>
+            <div class="row g-4">
+                {% for truck in trucks %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">
+                                <a href="{% url 'truck_detail' truck.id %}" class="brand-color text-decoration-none">
+                                    {{ truck.number_plate }}
+                                </a>
+                            </h5>
+                            <div class="status-badge {% if truck.is_available %}status-available{% else %}status-unavailable{% endif %}">
+                                {% if truck.is_available %}
+                                    Available
+                                {% else %}
+                                    In Trip
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     </div>
-</main>
-</body>
-</html>
+{% endblock %}

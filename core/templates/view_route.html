@@ -1,78 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Route</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        .detail-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .detail-item {
-            margin: 10px 0;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .label {
-            font-weight: bold;
-            width: 150px;
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'route_management' %}">Back to Route Management</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <div class="detail-container">
-            <h1>Route Details</h1>
-            <div class="detail-item">
-                <span class="label">Route ID:</span>
-                <span>{{ route.id }}</span>
+{% extends 'base_fleetmanager.html' %}
+{% block title %}View Route | Truck Manager{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header brand-bg text-white">
+        <h2 class="mb-0"><i class="material-icons align-middle">map</i> Route Details</h2>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4 text-brand">Route ID:</dt>
+                    <dd class="col-sm-8">{{ route.id }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Start Location:</dt>
+                    <dd class="col-sm-8">{{ route.start_location }}</dd>
+
+                    <dt class="col-sm-4 text-brand">End Location:</dt>
+                    <dd class="col-sm-8">{{ route.end_location }}</dd>
+                </dl>
             </div>
-            <div class="detail-item">
-                <span class="label">Start Location:</span>
-                <span>{{ route.start_location }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">End Location:</span>
-                <span>{{ route.end_location }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Distance:</span>
-                <span>{{ route.distance_km }} km</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Estimated Cost:</span>
-                <span>${{ route.estimated_fuel_cost }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Created:</span>
-                <span>{{ route.created_at }}</span>
-            </div>
-            <div class="detail-item">
-                <span class="label">Last Updated:</span>
-                <span>{{ route.updated_at }}</span>
-            </div>
-            <div class="actions">
-                <a href="{% url 'edit_route' route.id %}" class="btn">Edit Route</a>
-                <a href="{% url 'delete_route' route.id %}" class="btn btn-danger">Delete Route</a>
+
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-4 text-brand">Distance:</dt>
+                    <dd class="col-sm-8">{{ route.distance_km }} km</dd>
+
+                    <dt class="col-sm-4 text-brand">Estimated Cost:</dt>
+                    <dd class="col-sm-8">${{ route.estimated_fuel_cost }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Created:</dt>
+                    <dd class="col-sm-8">{{ route.created_at }}</dd>
+
+                    <dt class="col-sm-4 text-brand">Last Updated:</dt>
+                    <dd class="col-sm-8">{{ route.updated_at }}</dd>
+                </dl>
             </div>
         </div>
-    </main>
-</body>
-</html>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'edit_route' route.id %}" class="btn btn-brand">
+                <i class="material-icons align-middle">edit</i> Edit Route
+            </a>
+            <a href="{% url 'delete_route' route.id %}" class="btn btn-brand-danger">
+                <i class="material-icons align-middle">delete</i> Delete Route
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
